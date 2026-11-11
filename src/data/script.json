@@ -1,0 +1,481 @@
+{
+  "title": "NAJMI — THE VILLAGE BUILDER",
+  "episode": "Episode 01 — Pintu Menuju Dunia Lain",
+  "fps": 30,
+  "duration": 216,
+  "scenes": [
+    {
+      "id": "s1",
+      "start": 0,
+      "end": 35,
+      "label": "Kamar",
+      "heading": "SCENE 1 — KAMAR YANG BERANTAKAN"
+    },
+    {
+      "id": "s2",
+      "start": 35,
+      "end": 70,
+      "label": "Kamar Mandi",
+      "heading": "SCENE 2 — PINTU YANG SALAH"
+    },
+    {
+      "id": "s3",
+      "start": 70,
+      "end": 110,
+      "label": "Rumah Tua",
+      "heading": "SCENE 3 — RUMAH DI TENGAH PADANG"
+    },
+    {
+      "id": "s4",
+      "start": 110,
+      "end": 155,
+      "label": "System",
+      "heading": "SCENE 4 — SYSTEM ONLINE"
+    },
+    {
+      "id": "s5",
+      "start": 155,
+      "end": 216,
+      "label": "Desa Pertama",
+      "heading": "SCENE 5 — DESA PERTAMA"
+    }
+  ],
+  "lines": [
+    {
+      "id": "s1-n1a",
+      "scene": "s1",
+      "speaker": "Narrator",
+      "text": "Namanya Najmi.",
+      "start": 2.8,
+      "estimate": 2.4,
+      "gapAfter": 0.2,
+      "delivery": "soft"
+    },
+    {
+      "id": "s1-n1b",
+      "scene": "s1",
+      "speaker": "Narrator",
+      "text": "Seorang pemuda biasa yang sedang menikmati...",
+      "start": 6.0,
+      "estimate": 3.4,
+      "gapAfter": 0.1,
+      "delivery": "soft"
+    },
+    {
+      "id": "s1-n1c",
+      "scene": "s1",
+      "speaker": "Narrator",
+      "text": "masa pengangguran.",
+      "start": 9.4,
+      "estimate": 2.0,
+      "gapAfter": 0.8,
+      "delivery": "soft"
+    },
+    {
+      "id": "s1-n2",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Lamaran ditolak lagi...",
+      "start": 13.2,
+      "estimate": 2.4,
+      "gapAfter": 0.7,
+      "delivery": "sad"
+    },
+    {
+      "id": "s1-n3a",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Sudah berapa bulan aku begini?",
+      "start": 17.0,
+      "estimate": 2.6,
+      "gapAfter": 0.3,
+      "delivery": "sad"
+    },
+    {
+      "id": "s1-n3b",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Bahkan mencari pekerjaan saja rasanya lebih sulit daripada mencari harta karun.",
+      "start": 20.0,
+      "estimate": 6.0,
+      "gapAfter": 1.0,
+      "delivery": "sad"
+    },
+    {
+      "id": "s1-n4a",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Ah... lapar.",
+      "start": 27.8,
+      "estimate": 1.6,
+      "gapAfter": 0.4,
+      "delivery": "soft"
+    },
+    {
+      "id": "s1-n4b",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Setidaknya kamar mandi masih bisa dikunjungi tanpa perlu melamar pekerjaan.",
+      "start": 30.2,
+      "estimate": 4.8,
+      "gapAfter": 0.0,
+      "delivery": "sad"
+    },
+    {
+      "id": "s2-n1",
+      "scene": "s2",
+      "speaker": "Najmi",
+      "text": "...Hah?",
+      "start": 46.2,
+      "estimate": 1.0,
+      "gapAfter": 0.4,
+      "delivery": "surprised"
+    },
+    {
+      "id": "s2-n2",
+      "scene": "s2",
+      "speaker": "Najmi",
+      "text": "Sebentar... ini bukan rumahku.",
+      "start": 51.2,
+      "estimate": 3.0,
+      "gapAfter": 1.0,
+      "delivery": "surprised"
+    },
+    {
+      "id": "s2-n3",
+      "scene": "s2",
+      "speaker": "Najmi",
+      "text": "Aduh!",
+      "start": 57.0,
+      "estimate": 0.9,
+      "gapAfter": 0.4,
+      "delivery": "shout"
+    },
+    {
+      "id": "s2-n4",
+      "scene": "s2",
+      "speaker": "Najmi",
+      "text": "Jadi ini bukan mimpi?",
+      "start": 59.0,
+      "estimate": 2.4,
+      "gapAfter": 0.5,
+      "delivery": "soft"
+    },
+    {
+      "id": "s3-n1",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Rumah siapa ini?",
+      "start": 73.5,
+      "estimate": 2.0,
+      "gapAfter": 0.8,
+      "delivery": "soft"
+    },
+    {
+      "id": "s3-n2",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Kenapa pintu kamar mandiku bisa terhubung ke tempat seperti ini?",
+      "start": 77.0,
+      "estimate": 4.8,
+      "gapAfter": 2.0,
+      "delivery": "soft"
+    },
+    {
+      "id": "s3-n3",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Wow...",
+      "start": 85.0,
+      "estimate": 1.2,
+      "gapAfter": 0.6,
+      "delivery": "soft"
+    },
+    {
+      "id": "s3-n4",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Tempat ini...",
+      "start": 88.0,
+      "estimate": 1.6,
+      "gapAfter": 0.2,
+      "delivery": "soft"
+    },
+    {
+      "id": "s3-n5",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "benar-benar berbeda.",
+      "start": 90.0,
+      "estimate": 2.2,
+      "gapAfter": 0.4,
+      "delivery": "soft"
+    },
+    {
+      "id": "s4-n1",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Eh?!",
+      "start": 112.8,
+      "estimate": 0.9,
+      "gapAfter": 0.4,
+      "delivery": "surprised"
+    },
+    {
+      "id": "s4-n2",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Apa-apaan ini?!",
+      "start": 114.8,
+      "estimate": 2.0,
+      "gapAfter": 1.0,
+      "delivery": "shout"
+    },
+    {
+      "id": "s4-n3a",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "System? Misi?",
+      "start": 125.0,
+      "estimate": 1.6,
+      "gapAfter": 0.4,
+      "delivery": "soft"
+    },
+    {
+      "id": "s4-n3b",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Membangun desa?",
+      "start": 127.5,
+      "estimate": 1.8,
+      "gapAfter": 0.6,
+      "delivery": "soft"
+    },
+    {
+      "id": "s4-n4",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Jangan bilang aku masuk ke dunia game?",
+      "start": 130.5,
+      "estimate": 3.4,
+      "gapAfter": 0.6,
+      "delivery": "soft"
+    },
+    {
+      "id": "s4-s1",
+      "scene": "s4",
+      "speaker": "System",
+      "text": "Konfirmasi.",
+      "start": 135.0,
+      "estimate": 1.2,
+      "gapAfter": 0.4,
+      "delivery": "system"
+    },
+    {
+      "id": "s4-s2",
+      "scene": "s4",
+      "speaker": "System",
+      "text": "Host telah dipilih sebagai pengelola wilayah ini.",
+      "start": 136.8,
+      "estimate": 3.0,
+      "gapAfter": 0.8,
+      "delivery": "system"
+    },
+    {
+      "id": "s4-n5a",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Pengelola?!",
+      "start": 141.2,
+      "estimate": 1.3,
+      "gapAfter": 0.2,
+      "delivery": "shout"
+    },
+    {
+      "id": "s4-n5b",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Tunggu dulu!",
+      "start": 143.0,
+      "estimate": 1.3,
+      "gapAfter": 0.3,
+      "delivery": "shout"
+    },
+    {
+      "id": "s4-n5c",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "AKU BAHKAN TIDAK BISA MENGELOLA HIDUPKU SENDIRI!",
+      "start": 145.0,
+      "estimate": 4.2,
+      "gapAfter": 0.4,
+      "delivery": "shout"
+    },
+    {
+      "id": "s4-s3",
+      "scene": "s4",
+      "speaker": "System",
+      "text": "Misi utama tidak dapat dibatalkan.",
+      "start": 149.6,
+      "estimate": 2.4,
+      "gapAfter": 0.5,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-s1a",
+      "scene": "s5",
+      "speaker": "System",
+      "text": "Wilayah ini belum memiliki penduduk.",
+      "start": 157.0,
+      "estimate": 2.2,
+      "gapAfter": 0.6,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-s1b",
+      "scene": "s5",
+      "speaker": "System",
+      "text": "Tidak ada bangunan pemukiman.",
+      "start": 160.2,
+      "estimate": 2.2,
+      "gapAfter": 0.6,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-s1c",
+      "scene": "s5",
+      "speaker": "System",
+      "text": "Tidak ada infrastruktur.",
+      "start": 163.4,
+      "estimate": 1.8,
+      "gapAfter": 0.6,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-s1d",
+      "scene": "s5",
+      "speaker": "System",
+      "text": "Dan tidak ada desa.",
+      "start": 166.2,
+      "estimate": 2.2,
+      "gapAfter": 0.6,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-s2",
+      "scene": "s5",
+      "speaker": "System",
+      "text": "Tugas pertama Host adalah membangun sebuah desa dan mendatangkan penduduk pertama.",
+      "start": 169.6,
+      "estimate": 5.4,
+      "gapAfter": 0.8,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-n1a",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "Jadi...",
+      "start": 176.0,
+      "estimate": 1.0,
+      "gapAfter": 0.2,
+      "delivery": "soft"
+    },
+    {
+      "id": "s5-n1b",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "aku harus membangun desa dari nol?",
+      "start": 177.8,
+      "estimate": 3.2,
+      "gapAfter": 0.5,
+      "delivery": "soft"
+    },
+    {
+      "id": "s5-n1c",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "Bagaimana caranya?",
+      "start": 181.5,
+      "estimate": 1.8,
+      "gapAfter": 0.4,
+      "delivery": "soft"
+    },
+    {
+      "id": "s5-n1d",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "Aku saja tidak punya pengalaman membangun rumah...",
+      "start": 184.0,
+      "estimate": 3.6,
+      "gapAfter": 0.7,
+      "delivery": "sad"
+    },
+    {
+      "id": "s5-n2",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "...Sepertinya hidupku baru saja menjadi jauh lebih rumit.",
+      "start": 193.5,
+      "estimate": 4.0,
+      "gapAfter": 0.7,
+      "delivery": "sad"
+    },
+    {
+      "id": "s5-nar1",
+      "scene": "s5",
+      "speaker": "Narrator",
+      "text": "Dan begitulah...",
+      "start": 199.0,
+      "estimate": 1.8,
+      "gapAfter": 0.4,
+      "delivery": "soft"
+    },
+    {
+      "id": "s5-nar2",
+      "scene": "s5",
+      "speaker": "Narrator",
+      "text": "Petualangan seorang pengangguran bernama Najmi dimulai.",
+      "start": 201.5,
+      "estimate": 3.4,
+      "gapAfter": 0.6,
+      "delivery": "soft"
+    },
+    {
+      "id": "s5-nar3",
+      "scene": "s5",
+      "speaker": "Narrator",
+      "text": "Di sebuah dunia yang asing...",
+      "start": 205.5,
+      "estimate": 2.4,
+      "gapAfter": 0.3,
+      "delivery": "soft"
+    },
+    {
+      "id": "s5-nar4",
+      "scene": "s5",
+      "speaker": "Narrator",
+      "text": "Dengan sebuah misi yang bahkan belum pernah ia bayangkan.",
+      "start": 208.2,
+      "estimate": 4.0,
+      "gapAfter": 0.0,
+      "delivery": "soft"
+    }
+  ],
+  "sfx": [
+    {"id": "stomach", "at": 27.0, "src": "audio/sfx/stomach.wav", "volume": 0.75},
+    {"id": "door-open-1", "at": 45.8, "src": "audio/sfx/door.wav", "volume": 0.55},
+    {"id": "door-close", "at": 49.6, "src": "audio/sfx/door.wav", "volume": 0.8},
+    {"id": "door-open-2", "at": 52.2, "src": "audio/sfx/door.wav", "volume": 0.7},
+    {"id": "pinch", "at": 56.4, "src": "audio/sfx/pinch.wav", "volume": 0.8},
+    {"id": "notify-1", "at": 107.4, "src": "audio/sfx/notify.wav", "volume": 0.85},
+    {"id": "system-boot", "at": 111.2, "src": "audio/sfx/system.wav", "volume": 0.55},
+    {"id": "quest-whoosh", "at": 117.8, "src": "audio/sfx/whoosh.wav", "volume": 0.5},
+    {"id": "system-ping", "at": 135.0, "src": "audio/sfx/notify.wav", "volume": 0.45},
+    {"id": "comedy", "at": 151.8, "src": "audio/sfx/pinch.wav", "volume": 0.55},
+    {"id": "map-whoosh", "at": 156.2, "src": "audio/sfx/whoosh.wav", "volume": 0.5},
+    {"id": "build-magic-1", "at": 187.0, "src": "audio/sfx/magic.wav", "volume": 0.7},
+    {"id": "build-magic-2", "at": 191.0, "src": "audio/sfx/magic.wav", "volume": 0.55},
+    {"id": "epic-ending", "at": 199.0, "src": "audio/sfx/epic.wav", "volume": 0.75}
+  ]
+}

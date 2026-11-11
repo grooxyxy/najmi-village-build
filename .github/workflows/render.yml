@@ -1,0 +1,153 @@
+name: Render NAJMI Episode 01
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'remotion.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/render.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: najmi-render-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    name: Build and render (1080p30)
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core libgomp1
+
+      - name: Install Python image tooling
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pillow
+
+      - name: Install npm dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Generate pixel sprites
+        run: python3 scripts/generate-sprites.py
+
+      - name: Generate procedural score and SFX
+        run: node scripts/generate-audio.mjs
+
+      - name: Cache Piper
+        uses: actions/cache@v4
+        with:
+          path: .cache/piper
+          key: piper-${{ runner.os }}-2023.11.14-2-id_ID-news_tts-medium
+
+      - name: Download Piper + Indonesian voice
+        run: bash scripts/setup-piper.sh
+
+      - name: Generate dialogue with Piper
+        run: node scripts/generate-tts.mjs
+
+      - name: Typecheck (non-blocking)
+        continue-on-error: true
+        run: npm run typecheck
+
+      - name: Ensure Remotion browser
+        run: npx remotion browser ensure
+
+      - name: Render with ANGLE
+        id: render-angle
+        run: |
+          mkdir -p out
+          npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 \
+            --gl=angle \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=18 \
+            --pixel-format=yuv420p
+
+      - name: Render thumbnail
+        if: success()
+        continue-on-error: true
+        run: |
+          npx remotion still src/index.ts NajmiEp1 out/thumbnail.png \
+            --frame=4800 \
+            --gl=angle || \
+          npx remotion still src/index.ts NajmiEp1 out/thumbnail.png \
+            --frame=4800 \
+            --gl=swiftshader
+
+      - name: Upload video
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-01
+          path: |
+            out/najmi-ep1.mp4
+            out/thumbnail.png
+            src/data/audio-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retry with SwiftShader
+        id: swiftshader
+        if: failure() && steps.render-angle.outcome == 'failure'
+        run: |
+          rm -f out/najmi-ep1.mp4
+          npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 \
+            --gl=swiftshader \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=18 \
+            --pixel-format=yuv420p
+
+      - name: Upload SwiftShader video
+        if: steps.swiftshader.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-01-swiftshader
+          path: |
+            out/najmi-ep1.mp4
+            src/data/audio-manifest.json
+          retention-days: 14
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## NAJMI Episode 01"
+            echo ""
+            echo "- Renderer: ANGLE, fallback SwiftShader"
+            echo "- Resolution: 1920x1080 @ 30fps"
+            echo "- Duration: 216 seconds"
+            echo "- Audio: Piper id_ID-news_tts-medium + procedural score"
+            echo ""
+            if [ -f out/najmi-ep1.mp4 ]; then
+              ls -lh out/najmi-ep1.mp4
+            else
+              echo "No video produced."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
