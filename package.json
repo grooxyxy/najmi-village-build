@@ -5,18 +5,18 @@
   "description": "NAJMI — THE VILLAGE BUILDER, Episode 01. Remotion + Three.js MOBA-cam pixel-art story video.",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=angle",
-    "still": "remotion still src/index.ts NajmiEp1 out/still.png --frame=0 --gl=angle",
+    "render": "remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=swangle",
+    "still": "remotion still src/index.ts NajmiEp1 out/still.png --frame=0 --gl=swangle",
     "typecheck": "tsc --noEmit",
     "assets": "python3 scripts/generate-sprites.py && node scripts/generate-audio.mjs && node scripts/generate-tts.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "9.8.2",
-    "@remotion/cli": "4.0.542",
-    "@remotion/three": "4.0.542",
+    "@remotion/cli": "4.0.543",
+    "@remotion/three": "4.0.543",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "remotion": "4.0.542",
+    "remotion": "4.0.543",
     "three": "0.181.2"
   },
   "devDependencies": {

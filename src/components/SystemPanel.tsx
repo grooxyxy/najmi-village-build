@@ -25,7 +25,7 @@ const corner = (position: 'tl' | 'tr' | 'bl' | 'br'): React.CSSProperties => {
   return {...common, bottom: -1, right: -1, borderWidth: `0 ${width}px ${width}px 0`};
 };
 
-const row = (label: string, value: string, color = COLORS.cream): React.ReactNode => (
+const row = (label: string, value: string, color: string = COLORS.cream): React.ReactNode => (
   <div
     key={label}
     style={{
@@ -131,7 +131,7 @@ export const SystemPanel: React.FC = () => {
     {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
   );
 
-  const heading = (text: string, delay = 0, color = COLORS.cyan) => (
+  const heading = (text: string, delay = 0, color: string = COLORS.cyan) => (
     <div
       style={{
         fontFamily: FONTS.mono,
@@ -163,7 +163,7 @@ export const SystemPanel: React.FC = () => {
     </div>
   );
 
-  const body = (text: string, delay = 0, color = 'rgba(214, 245, 255, 0.72)') => (
+  const body = (text: string, delay = 0, color: string = 'rgba(214, 245, 255, 0.72)') => (
     <div
       style={{
         fontFamily: FONTS.mono,

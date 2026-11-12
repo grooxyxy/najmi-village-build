@@ -85,12 +85,12 @@ jobs:
       - name: Ensure Remotion browser
         run: npx remotion browser ensure
 
-      - name: Render with ANGLE
-        id: render-angle
+      - name: Render with SwANGLE
+        id: render-swangle
         run: |
           mkdir -p out
           npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 \
-            --gl=angle \
+            --gl=swangle \
             --concurrency=2 \
             --codec=h264 \
             --crf=18 \
@@ -102,10 +102,7 @@ jobs:
         run: |
           npx remotion still src/index.ts NajmiEp1 out/thumbnail.png \
             --frame=4800 \
-            --gl=angle || \
-          npx remotion still src/index.ts NajmiEp1 out/thumbnail.png \
-            --frame=4800 \
-            --gl=swiftshader
+            --gl=swangle
 
       - name: Upload video
         if: success()
@@ -119,23 +116,23 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retry with SwiftShader
-        id: swiftshader
-        if: failure() && steps.render-angle.outcome == 'failure'
+      - name: Retry with ANGLE + unsafe SwiftShader
+        id: render-angle
+        if: failure() && steps.render-swangle.outcome == 'failure'
         run: |
           rm -f out/najmi-ep1.mp4
           npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 \
-            --gl=swiftshader \
+            --gl=angle \
             --concurrency=2 \
             --codec=h264 \
             --crf=18 \
             --pixel-format=yuv420p
 
-      - name: Upload SwiftShader video
-        if: steps.swiftshader.outcome == 'success'
+      - name: Upload fallback video
+        if: steps.render-angle.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: najmi-episode-01-swiftshader
+          name: najmi-episode-01-fallback
           path: |
             out/najmi-ep1.mp4
             src/data/audio-manifest.json
@@ -147,7 +144,7 @@ jobs:
           {
             echo "## NAJMI Episode 01"
             echo ""
-            echo "- Renderer: ANGLE, fallback SwiftShader"
+            echo "- Renderer: SwANGLE (software), fallback ANGLE + unsafe SwiftShader"
             echo "- Resolution: 1920x1080 @ 30fps"
             echo "- Duration: 216 seconds"
             echo "- Audio: Piper id_ID-news_tts-medium + procedural score"

@@ -4,3 +4,7 @@ Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 Config.setCodec('h264');
 Config.setConcurrency(2);
+Config.setChromiumOpenGlRenderer('swangle');
+Config.setChromiumFlags({
+  'enable-unsafe-swiftshader': true,
+});

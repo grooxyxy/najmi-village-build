@@ -17,6 +17,7 @@ import {
   roofTexture,
   stoneTexture,
   warmGlowTexture,
+  waterTexture,
   windowGlowTexture,
   woodTexture,
 } from '../lib/textures';
