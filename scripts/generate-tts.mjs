@@ -26,6 +26,13 @@ const API = (process.env.VOICESTUDIO_URL || 'http://127.0.0.1:3900').replace(/\/
 const API_KEY = process.env.VOICESTUDIO_API_KEY || '';
 const MODEL = process.env.VOICESTUDIO_MODEL || 'omnivoice';
 const MODEL_REPO = process.env.VOICESTUDIO_MODEL_REPO || 'k2-fsa/OmniVoice';
+const EXTRA_MODEL_REPOS = (
+  process.env.VOICESTUDIO_EXTRA_MODEL_REPOS || 'eustlb/higgs-audio-v2-tokenizer'
+)
+  .split(',')
+  .map((repo) => repo.trim())
+  .filter(Boolean);
+const MODEL_REPOS = [...new Set([MODEL_REPO, ...EXTRA_MODEL_REPOS])];
 const ACCEPT_TERMS = process.env.VOICESTUDIO_ACCEPT_MODEL_LICENCE === '1';
 const REUSE = process.env.VOICESTUDIO_REUSE === '1';
 const SKIP_WARMUP = process.env.VOICESTUDIO_SKIP_WARMUP === '1';
@@ -129,12 +136,28 @@ async function apiJson(route, options = {}) {
   return body;
 }
 
-async function ensureLicence() {
+async function acceptModelTerms(models) {
+  let accepted = 0;
+  for (const model of models || []) {
+    const repoId = model?.repo_id;
+    const fingerprint = model?.fingerprint;
+    if (!repoId || !fingerprint) continue;
+    await apiJson('/models/licenses/accept', {
+      method: 'POST',
+      body: JSON.stringify({repo_id: repoId, fingerprint, accepted: true}),
+    });
+    log(`model terms accepted for ${repoId}`);
+    accepted += 1;
+  }
+  return accepted;
+}
+
+async function ensureLicenceForRepo(repoId) {
   let details;
   try {
-    details = await apiJson(`/models/licenses/details/${MODEL_REPO}`);
+    details = await apiJson(`/models/licenses/details/${repoId}`);
   } catch (error) {
-    log(`licence details unavailable; continuing to the synthesis gate: ${error.message}`);
+    log(`licence details unavailable for ${repoId}; continuing to the synthesis gate: ${error.message}`);
     return;
   }
 
@@ -146,29 +169,36 @@ async function ensureLicence() {
     state === 'accept' ||
     state === 'ok';
   if (accepted) {
-    log(`model terms already accepted for ${MODEL_REPO}`);
+    log(`model terms already accepted for ${repoId}`);
     return;
   }
 
   const fingerprint = acceptance.fingerprint || details?.fingerprint;
-  const licence = details?.licence || details?.license || details?.terms?.license || 'unknown';
-  log(`model ${MODEL_REPO} licence: ${licence}`);
+  const info = details?.info || {};
+  const licence =
+    info.license || info.licence || details?.licence || details?.license || details?.terms?.license || 'unknown';
+  log(`model ${repoId} licence: ${licence}`);
   if (!fingerprint) {
-    log('no fingerprint returned by the licence endpoint; the synthesis gate will decide.');
+    log(`no fingerprint returned for ${repoId}; the synthesis gate will decide.`);
     return;
   }
   if (!ACCEPT_TERMS) {
     throw new Error(
-      `Model terms for ${MODEL_REPO} are not accepted. ` +
+      `Model terms for ${repoId} are not accepted. ` +
         'Set VOICESTUDIO_ACCEPT_MODEL_LICENCE=1 to confirm you accept the model card terms.',
     );
   }
 
-  await apiJson('/models/licenses/accept', {
-    method: 'POST',
-    body: JSON.stringify({repo_id: MODEL_REPO, fingerprint, accepted: true}),
-  });
-  log(`model terms accepted for ${MODEL_REPO}`);
+  const acceptedCount = await acceptModelTerms([{repo_id: repoId, fingerprint}]);
+  if (acceptedCount === 0) {
+    throw new Error(`Could not record model terms acceptance for ${repoId}.`);
+  }
+}
+
+async function ensureLicences() {
+  for (const repoId of MODEL_REPOS) {
+    await ensureLicenceForRepo(repoId);
+  }
 }
 
 function existingManifestIsComplete() {
@@ -190,9 +220,8 @@ function existingManifestIsComplete() {
   }
 }
 
-function curlSynthesis({input, instruct, seed, outPath, label}) {
+async function curlSynthesis({input, instruct, seed, outPath, label}) {
   fs.mkdirSync(path.dirname(outPath), {recursive: true});
-  fs.rmSync(outPath, {force: true});
   const body = JSON.stringify({
     model: MODEL,
     voice: 'default',
@@ -234,35 +263,66 @@ function curlSynthesis({input, instruct, seed, outPath, label}) {
     `${API}/v1/audio/speech`,
   ];
 
-  const started = Date.now();
-  const result = spawnSync(CURL, args, {
-    input: body,
-    encoding: 'utf8',
-    maxBuffer: 4 * 1024 * 1024,
-  });
-  const elapsed = ((Date.now() - started) / 1000).toFixed(1);
-  const status = Number(String(result.stdout || '').trim());
-  if (result.error) {
-    throw new Error(`curl failed for ${label}: ${result.error.message}`);
-  }
-  if (result.status !== 0) {
-    throw new Error(`curl exited ${result.status} for ${label}: ${String(result.stderr).slice(0, 800)}`);
-  }
-  if (status !== 200) {
-    let detail = '';
+  let totalElapsed = 0;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    fs.rmSync(outPath, {force: true});
+    const started = Date.now();
+    const result = spawnSync(CURL, args, {
+      input: body,
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
+    });
+    const elapsed = (Date.now() - started) / 1000;
+    totalElapsed += elapsed;
+    const status = Number(String(result.stdout || '').trim());
+    if (result.error) {
+      throw new Error(`curl failed for ${label}: ${result.error.message}`);
+    }
+    if (result.status !== 0) {
+      throw new Error(
+        `curl exited ${result.status} for ${label}: ${String(result.stderr).slice(0, 800)}`,
+      );
+    }
+
+    let rawBody = '';
     try {
-      detail = fs.readFileSync(outPath, 'utf8').slice(0, 1200);
+      rawBody = fs.readFileSync(outPath, 'utf8');
     } catch {
       // No body.
     }
-    throw new Error(`VoiceStudio returned ${status} for ${label} after ${elapsed}s: ${detail}`);
+
+    if (status === 200) {
+      const size = fs.statSync(outPath).size;
+      if (size < 1000) {
+        throw new Error(`VoiceStudio returned a suspiciously small file for ${label} (${size} bytes)`);
+      }
+      log(`synthesized ${label} in ${elapsed.toFixed(1)}s (${(size / 1024).toFixed(0)} KiB)`);
+      return totalElapsed.toFixed(1);
+    }
+
+    if (attempt < 2 && status === 403 && ACCEPT_TERMS) {
+      let parsed;
+      try {
+        parsed = JSON.parse(rawBody);
+      } catch {
+        // Not a JSON licence gate.
+      }
+      const models = parsed?.detail?.models || parsed?.error?.models || parsed?.models || [];
+      if (models.length > 0) {
+        log(
+          `VoiceStudio requested ${models.length} additional model licence(s) for ${label}; ` +
+            'accepting and retrying',
+        );
+        const accepted = await acceptModelTerms(models);
+        if (accepted > 0) continue;
+      }
+    }
+
+    throw new Error(
+      `VoiceStudio returned ${status} for ${label} after ${elapsed.toFixed(1)}s: ${rawBody.slice(0, 1200)}`,
+    );
   }
-  const size = fs.statSync(outPath).size;
-  if (size < 1000) {
-    throw new Error(`VoiceStudio returned a suspiciously small file for ${label} (${size} bytes)`);
-  }
-  log(`synthesized ${label} in ${elapsed}s (${(size / 1024).toFixed(0)} KiB)`);
-  return elapsed;
+  throw new Error(`VoiceStudio failed for ${label} after ${totalElapsed.toFixed(1)}s and retries.`);
 }
 
 function probe(file) {
@@ -364,12 +424,12 @@ async function main() {
   fs.mkdirSync(VO_DIR, {recursive: true});
   fs.mkdirSync(RAW_DIR, {recursive: true});
 
-  await ensureLicence();
+  await ensureLicences();
 
   if (!SKIP_WARMUP) {
     log('warming OmniVoice; the first load may download ~2.4 GB of weights');
     const warmupPath = path.join(RAW_DIR, 'warmup.wav');
-    curlSynthesis({
+    await curlSynthesis({
       input: '[sigh] Halo, namaku Najmi.',
       instruct: SPEAKERS.Narrator.instruct,
       seed: 1207,
@@ -394,7 +454,7 @@ async function main() {
     const seed = 1301 + index * 37;
 
     log(`[${index + 1}/${script.lines.length}] ${line.id} (${line.speaker}/${line.delivery})`);
-    curlSynthesis({
+    await curlSynthesis({
       input: text,
       instruct: speaker.instruct,
       seed,

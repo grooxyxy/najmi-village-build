@@ -109,7 +109,7 @@ scripts/generate-tts.mjs        VoiceStudio/OmniVoice + ffmpeg + penulis manifes
 ## Suara
 
 - **TTS:** [VoiceStudio](https://github.com/debpalash/VoiceStudio) + engine OmniVoice (`k2-fsa/OmniVoice`).
-- **Lisensi model:** weight OmniVoice memakai CC-BY-NC dan komponen tokenizer pihak ketiga. Workflow disetel untuk produksi **non-komersial**; jangan aktifkan `VOICESTUDIO_ACCEPT_MODEL_LICENCE` untuk penggunaan komersial tanpa meninjau ulang lisensi.
+- **Lisensi model:** weight OmniVoice memakai CC-BY-NC dan komponen tokenizer pihak ketiga. Workflow disetel untuk produksi **non-komersial**; jangan aktifkan `VOICESTUDIO_ACCEPT_MODEL_LICENCE` untuk penggunaan komersial tanpa meninjau ulang lisensi. VoiceStudio juga meminta penerimaan terpisah untuk tokenizer `eustlb/higgs-audio-v2-tokenizer`, dan pipeline menerima kedua gate tersebut.
 - **Narator / Najmi / System** dibedakan lewat voice-design (`male, middle-aged, low pitch`, `male, young adult`), seed, pitch (`asetrate` + `aresample`), EQ/kompresi, dan filter ffmpeg; System mendapat tremolo + echo digital.
 - **Ekspresi:** beberapa baris sedih memakai tag `[sigh]` agar napas/keluhan ikut terdengar; teks caption tetap bersih.
 - **Musik & SFX:** disintesis dari nol oleh `scripts/generate-audio.mjs`; tidak memakai sampel atau aset berhak cipta.

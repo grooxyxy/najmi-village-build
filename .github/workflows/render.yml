@@ -29,6 +29,9 @@ jobs:
       VOICESTUDIO_IMAGE: ghcr.io/debpalash/voicestudio:stable
       VOICESTUDIO_URL: http://127.0.0.1:3900
       VOICESTUDIO_REUSE: '1'
+      # OmniVoice also loads the Higgs Audio tokenizer, which has its own
+      # non-commercial licence gate.
+      VOICESTUDIO_EXTRA_MODEL_REPOS: eustlb/higgs-audio-v2-tokenizer
       # OmniVoice weights are CC-BY-NC; this episode is a non-commercial fan short.
       # Set this to 0 if the intended use is commercial.
       VOICESTUDIO_ACCEPT_MODEL_LICENCE: '1'
