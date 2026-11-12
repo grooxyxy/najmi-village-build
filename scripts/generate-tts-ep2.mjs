@@ -110,7 +110,7 @@ const TTS_TEXT_OVERRIDES = {
   's4-n1': 'Ugh... [pause 140ms] ternyata membawa barang sebanyak ini tidak semudah yang kubayangkan.',
   's4-n2': 'Baiklah... [pause 120ms] setidaknya aku tidak datang dengan tangan kosong.',
   's5-sys1': 'Persiapan Host telah selesai.',
-  's5-n1': 'Heh...',
+  's5-n1': 'Heh... tidak buruk.',
   's5-n2': 'Sepertinya petualangan ini [pause 140ms] akhirnya benar-benar dimulai.',
   's6-n1': '[pause 250ms] Hah?',
   's6-n2': 'Jangan bilang...',
