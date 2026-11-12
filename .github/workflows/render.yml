@@ -23,7 +23,7 @@ concurrency:
 jobs:
   render:
     name: Build and render (1080p30)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 300
 
     steps:
@@ -42,8 +42,15 @@ jobs:
 
       - name: Install system tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core libgomp1
+          for attempt in 1 2 3 4 5; do
+            sudo apt-get -o Acquire::Retries=5 -o Acquire::ForceIPv4=true update || true
+            if sudo apt-get -o Acquire::Retries=5 -o Acquire::ForceIPv4=true install -y --no-install-recommends ffmpeg fonts-dejavu-core libgomp1; then
+              exit 0
+            fi
+            echo "apt-get failed (attempt ${attempt}/5), retrying in 15s..."
+            sleep 15
+          done
+          exit 1
 
       - name: Install Python image tooling
         run: |
