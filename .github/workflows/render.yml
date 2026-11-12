@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 300
     env:
-      VOICESTUDIO_IMAGE: ghcr.io/debpalash/voicestudio:stable
+      VOICESTUDIO_IMAGE: ghcr.io/debpalash/voicestudio@sha256:65f1305c749c759d3656fed5f12623a98aff11e5f326d28bf7095cb57f3a9e0b
       VOICESTUDIO_URL: http://127.0.0.1:3900
       VOICESTUDIO_REUSE: '1'
       # OmniVoice also loads the Higgs Audio tokenizer, which has its own
