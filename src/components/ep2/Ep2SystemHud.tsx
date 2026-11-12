@@ -138,7 +138,7 @@ export const Ep2SystemHud: React.FC = () => {
   const t = frame / FPS;
 
   const questOpen = frame >= 0.6 * FPS && frame <= 5.2 * FPS;
-  const checklistOpen = frame >= 30.3 * FPS && frame <= 54.4 * FPS;
+  const checklistOpen = frame >= 30.3 * FPS && frame <= 56.4 * FPS;
   const completeOpen = frame >= 142.6 * FPS && frame <= 162 * FPS;
   const warningOpen = frame >= 179.2 * FPS && frame <= 187.4 * FPS;
 

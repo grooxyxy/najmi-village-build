@@ -140,7 +140,7 @@ const ShoppingCart: React.FC<{frame: number; load: number}> = ({frame, load}) =>
 );
 
 const Checkout: React.FC<{frame: number; total: number}> = ({frame, total}) => {
-  const screenGlow = 0.4 + Math.min(1, total / 100) * 0.5;
+  const screenGlow = 0.4 + Math.min(1, total / 2.82) * 0.5;
   return (
     <group position={[1.0, 0, -3.25]}>
       <Box size={[3.1, 0.95, 1.0]} position={[0, 0.48, 0]} color="#6b6258" />
@@ -150,7 +150,7 @@ const Checkout: React.FC<{frame: number; total: number}> = ({frame, total}) => {
       <UnlitPlane width={0.56} height={0.32} position={[0.92, 1.29, 0.09]} color="#8bf2c8" opacity={screenGlow * 0.6} />
       <Box size={[0.12, 0.45, 0.12]} position={[0.92, 1.02, -0.15]} color="#202422" />
       <Cylinder radiusTop={0.1} radiusBottom={0.12} height={0.42} segments={8} position={[0.92, 2.0, -0.2]} color="#777f77" />
-      <UnlitPlane width={0.85} height={0.52} position={[0.92, 2.25, -0.15]} map={signTexture(`TOTAL ${total > 0 ? Math.round(total * 1000).toLocaleString('id-ID') : '---'}`)} />
+      <UnlitPlane width={0.85} height={0.52} position={[0.92, 2.25, -0.15]} map={signTexture(`TOTAL ${total > 0 ? Math.round(total * 1000000).toLocaleString('id-ID') : '---'}`)} />
       <GlowSprite position={[0.92, 2.25, -0.4]} scale={1.5} map={glowTexture()} color="#8bf2c8" opacity={screenGlow * 0.2} />
       <Box size={[0.5, 0.55, 0.4]} position={[-1.1, 1.2, -0.05]} color="#6b8f81" />
       <Box size={[0.42, 0.42, 0.34]} position={[-1.1, 1.24, 0.12]} color="#d6dfcc" />
@@ -199,7 +199,7 @@ export const Ep2StoreScene: React.FC<{frame: number}> = ({frame}) => {
   const pose = sampleCamera(cameraKeys, frame);
   const toolLoad = clamp01(seg(frame, 100, 225));
   const payGlow = clamp01(seg(frame, 210, 240));
-  const total = 1.2 + payGlow * 34.6;
+  const total = 1.25 + payGlow * 1.57;
   const shock = frame >= 240 && frame < 330;
 
   let sprite: string = SPRITES.idle;

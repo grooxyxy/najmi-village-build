@@ -233,6 +233,24 @@ jobs:
           npx remotion still src/index.ts NajmiEp2 out/ep2-s5-meadow.png --frame=4500 --gl=swangle
           npx remotion still src/index.ts NajmiEp2 out/ep2-s6-forest.png --frame=5500 --gl=swangle
 
+      - name: Upload Episode 02 preview stills
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-02-stills
+          path: out/ep2-*.png
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Episode 02 audio manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-02-audio-manifest
+          path: src/data/ep2/audio-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Render Episode 02 with SwANGLE
         id: render-swangle
         run: |

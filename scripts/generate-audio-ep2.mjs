@@ -194,7 +194,7 @@ const sections = [
   {
     id: 'system',
     start: 30,
-    end: 56,
+    end: 57,
     tempo: 64,
     chords: [
       [38, 45, 50],
@@ -212,7 +212,7 @@ const sections = [
   },
   {
     id: 'phone',
-    start: 56,
+    start: 57,
     end: 76,
     tempo: 96,
     chords: [

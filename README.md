@@ -10,7 +10,7 @@ Video cerita isekai/komedi berdurasi total **406 detik**, 1920×1080, 30 fps. Du
 - Episode 01: 5 adegan + title card, 6480 frame, 42 baris dialog/narasi, 14 cue SFX.
 - Episode 02: 6 adegan, 5700 frame, 26 baris dialog/narasi, 39 cue SFX, skor prosedural 190 detik.
 - Episode 02 menambahkan kamera handheld/shake/roll, letterbox sinematik, speed lines, impact frame, sistem pencahayaan baru, serta set kabin, kamar mandi, toko modern, padang rumput, dan hutan.
-- 21 pose sprite Najmi (termasuk `think`, `carry`, `shovel`, `phoneStand`) + sprite burung, semuanya digambar oleh skrip.
+- 22 pose sprite Najmi (termasuk `think`, `carry`, `shovel`, `phoneStand`) + sprite burung, semuanya digambar oleh skrip.
 - UI System holo-cyan, checklist persiapan, ponsel daftar belanja, UI toko/struk, caption word-reveal, transisi, dan title card.
 - Pipeline CI terpisah untuk Episode 01 dan Episode 02: generate sprite → generate musik/SFX → VoiceStudio/OmniVoice (dengan cache) → typecheck → render SwANGLE dengan fallback ANGLE + SwiftShader → unggah artifact + still validasi.
 

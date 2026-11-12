@@ -6,11 +6,10 @@ import {FPS} from '../../data/ep2/script';
 const clamp = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 
 const items = [
-  {name: 'SEKOP', detail: 'BAJA // 1 UNIT', price: 'Rp 185.000', at: 76.8, color: '#7ca4b8'},
-  {name: 'KAPAK', detail: 'PEGANGAN KAYU', price: 'Rp 240.000', at: 78.0, color: '#b88b5a'},
-  {name: 'TALI', detail: 'NYLON // 20 M', price: 'Rp 95.000', at: 79.2, color: '#c4b37b'},
-  {name: 'TERPAL', detail: '3 x 4 M', price: 'Rp 310.000', at: 80.4, color: '#6f8f7c'},
-  {name: 'BIBIT', detail: 'SAYUR // 1 PAKET', price: 'Rp 130.000', at: 81.6, color: '#7fa45c'},
+  {name: 'PERALATAN', detail: 'SEKOP • KAPAK • TALI • TERPAL', price: 'Rp 850.000', at: 76.8, color: '#7ca4b8'},
+  {name: 'MAKANAN & AIR', detail: 'BEKAL 3 HARI • 12 LITER', price: 'Rp 420.000', at: 78.6, color: '#b88b5a'},
+  {name: 'MATERIAL BANGUNAN', detail: 'PAKU • KAYU • BATU • SEMEN', price: 'Rp 1.240.000', at: 80.4, color: '#c4b37b'},
+  {name: 'BIBIT TANAMAN', detail: 'SAYUR • BUAH • PADI', price: 'Rp 310.000', at: 82.2, color: '#6f8f7c'},
 ];
 
 const ItemCard: React.FC<{item: (typeof items)[number]; frame: number; index: number}> = ({item, frame, index}) => {
@@ -65,7 +64,7 @@ export const Ep2StoreUI: React.FC = () => {
   const priceOut = interpolate(frame, [90.0 * FPS, 90.6 * FPS], [1, 0], clamp);
   const priceOpacity = Math.min(priceIn, priceOut);
   const totalProgress = interpolate(frame, [83.8 * FPS, 84.2 * FPS], [0, 1], clamp);
-  const total = 1250000 + totalProgress * 2200000;
+  const total = 1250000 + totalProgress * 1570000;
   const stamp = interpolate(frame, [91.2 * FPS, 91.8 * FPS], [0, 1], clamp);
   const shake = frame >= 84 * FPS && frame < 84.8 * FPS ? Math.sin(frame * 2.7) * 7 : 0;
 
@@ -193,7 +192,7 @@ export const Ep2StoreUI: React.FC = () => {
           ))}
           <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 17, fontWeight: 800, padding: '14px 0 8px'}}>
             <span>TOTAL</span>
-            <span>Rp 3.450.000</span>
+            <span>Rp 2.820.000</span>
           </div>
           <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 13, paddingTop: 8, borderTop: '2px dashed rgba(28,37,40,0.35)', color: '#a54032', fontWeight: 800}}>
             <span>SALDO TABUNGAN</span>
