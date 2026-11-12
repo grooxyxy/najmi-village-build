@@ -147,6 +147,19 @@ jobs:
             "$VOICESTUDIO_IMAGE"
           df -h /
 
+      - name: Fix VoiceStudio HTTP decoder
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          # VoiceStudio 0.5.7 ships an older brotli wheel, while its httpx2
+          # build calls Decompressor.process(..., output_buffer_limit=...).
+          # Older brotli C bindings reject that keyword and break every
+          # Hugging Face config download. Upgrade the wheel, verify it, and
+          # restart so the server imports the new extension.
+          docker exec voicestudio /opt/conda/bin/python3 -m pip install --no-cache-dir --upgrade 'brotli>=1.2.0'
+          docker exec voicestudio /opt/conda/bin/python3 -c 'import brotli, importlib.metadata as m; d=brotli.Decompressor(); d.process(b"", output_buffer_limit=1024); print("brotli", m.version("brotli"))'
+          docker restart voicestudio
+
       - name: Wait for VoiceStudio
         if: steps.voice-cache.outputs.hit != 'true'
         run: |
