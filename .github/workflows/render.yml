@@ -4,14 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'scripts/**'
-      - 'package.json'
-      - 'remotion.config.ts'
-      - 'tsconfig.json'
-      - '.github/workflows/render.yml'
     paths-ignore:
       - 'src/NajmiEp2.tsx'
       - 'src/data/ep2/**'
