@@ -23,15 +23,22 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json, pathlib, subprocess
+          import json, pathlib, wave
           manifest = json.loads(pathlib.Path('src/data/ep2/audio-manifest.json').read_text())
           for line in manifest['lines']:
               path = pathlib.Path('public', line['audio'])
-              out = subprocess.check_output([
-                  'ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-                  '-of', 'default=nokey=1:noprint_wrappers=1', str(path),
-              ]).decode().strip()
-              print(f"{line['id']:8s} start={line['start']:7.2f} manifest={line['duration']:6.3f} file={float(out):6.3f} {path}")
+              with wave.open(str(path)) as w:
+                  duration = w.getnframes() / w.getframerate()
+                  frames = w.readframes(w.getnframes())
+                  width = w.getsampwidth()
+              # Rough RMS for a quick clipping/empty-file check.
+              if width == 2:
+                  import array
+                  samples = array.array('h', frames)
+                  rms = (sum(s * s for s in samples) / max(1, len(samples))) ** 0.5
+              else:
+                  rms = 0
+              print(f"{line['id']:8s} start={line['start']:7.2f} manifest={line['duration']:6.3f} file={duration:6.3f} rms={rms:7.1f} {path}")
           PY
 
       - name: Upload voice takes
