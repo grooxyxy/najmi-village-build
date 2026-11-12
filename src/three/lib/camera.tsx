@@ -17,19 +17,46 @@ export const mix3 = (
   t: number,
 ): [number, number, number] => [mix(a[0], b[0], t), mix(a[1], b[1], t), mix(a[2], b[2], t)];
 
-export const CameraRig: React.FC<{pose: CameraPose; frame: number}> = ({pose, frame}) => {
+export const CameraRig: React.FC<{
+  pose: CameraPose;
+  frame: number;
+  shake?: number;
+  roll?: number;
+  handheld?: number;
+  offset?: [number, number, number];
+}> = ({pose, frame, shake = 0, roll = 0, handheld = 0, offset = [0, 0, 0]}) => {
   const {camera} = useThree();
 
   useLayoutEffect(() => {
-    camera.position.set(...pose.position);
-    camera.lookAt(new THREE.Vector3(...pose.target));
+    const n1 = Math.sin(frame * 0.73 + 1.3) * 0.7 + Math.sin(frame * 1.91 + 4.1) * 0.3;
+    const n2 = Math.sin(frame * 0.61 + 2.8) * 0.6 + Math.sin(frame * 2.17 + 1.7) * 0.4;
+    const n3 = Math.sin(frame * 0.53 + 5.2) * 0.65 + Math.sin(frame * 1.37 + 2.4) * 0.35;
+    const driftX = handheld * n1;
+    const driftY = handheld * n2 * 0.55;
+    const driftZ = handheld * n3 * 0.35;
+    const joltX = shake * n1;
+    const joltY = shake * n2;
+    const joltZ = shake * n3 * 0.5;
+    camera.position.set(
+      pose.position[0] + offset[0] + driftX + joltX,
+      pose.position[1] + offset[1] + driftY + joltY,
+      pose.position[2] + offset[2] + driftZ + joltZ,
+    );
+    camera.lookAt(
+      new THREE.Vector3(
+        pose.target[0] + shake * n2 * 0.35,
+        pose.target[1] + shake * n1 * 0.22,
+        pose.target[2],
+      ),
+    );
+    camera.rotation.z += roll + handheld * 0.0018 * n3 + shake * 0.008 * n1;
     if (camera instanceof THREE.PerspectiveCamera) {
       camera.fov = pose.fov;
       camera.near = 0.1;
       camera.far = 260;
       camera.updateProjectionMatrix();
     }
-  }, [frame, camera, pose.position, pose.target, pose.fov]);
+  }, [frame, camera, pose.position, pose.target, pose.fov, shake, roll, handheld, offset]);
 
   return null;
 };

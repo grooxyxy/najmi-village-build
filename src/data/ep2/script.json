@@ -1,0 +1,357 @@
+{
+  "title": "NAJMI: THE VILLAGE BUILDER",
+  "episode": "EPISODE 02 — PERSIAPAN MENUJU DUNIA BARU",
+  "fps": 30,
+  "duration": 190,
+  "scenes": [
+    {
+      "id": "s1",
+      "start": 0,
+      "end": 30,
+      "label": "Rumah Kayu",
+      "heading": "SCENE 1 — SEBUAH RENCANA"
+    },
+    {
+      "id": "s2",
+      "start": 30,
+      "end": 57,
+      "label": "System",
+      "heading": "SCENE 2 — MEMINTA SARAN SYSTEM"
+    },
+    {
+      "id": "s3",
+      "start": 57,
+      "end": 105,
+      "label": "Dunia Modern",
+      "heading": "SCENE 3 — BELANJA DI DUNIA MODERN"
+    },
+    {
+      "id": "s4",
+      "start": 105,
+      "end": 140,
+      "label": "Perlengkapan",
+      "heading": "SCENE 4 — MEMBAWA PERLENGKAPAN KE DUNIA LAIN"
+    },
+    {
+      "id": "s5",
+      "start": 140,
+      "end": 170,
+      "label": "Misi Pertama",
+      "heading": "SCENE 5 — MISI PERTAMA"
+    },
+    {
+      "id": "s6",
+      "start": 170,
+      "end": 190,
+      "label": "Hutan",
+      "heading": "SCENE 6 — SESUATU DI HUTAN"
+    }
+  ],
+  "lines": [
+    {
+      "id": "s1-sys1",
+      "scene": "s1",
+      "speaker": "System",
+      "text": "Main quest diperbarui. Temukan desa pertamamu.",
+      "start": 0.9,
+      "estimate": 2.5,
+      "gapAfter": 0.8,
+      "delivery": "system"
+    },
+    {
+      "id": "s1-n1",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Hmm... membangun desa dari nol...",
+      "start": 5.2,
+      "estimate": 2.8,
+      "gapAfter": 0.8,
+      "delivery": "thinking"
+    },
+    {
+      "id": "s1-n2",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Masalahnya, aku bahkan tidak punya peralatan untuk membangun rumah.",
+      "start": 9.6,
+      "estimate": 4.8,
+      "gapAfter": 0.8,
+      "delivery": "serious"
+    },
+    {
+      "id": "s1-n3",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Tunggu sebentar...",
+      "start": 16.2,
+      "estimate": 1.6,
+      "gapAfter": 0.6,
+      "delivery": "thinking"
+    },
+    {
+      "id": "s1-n4",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Kenapa aku harus mencari semua peralatan di dunia ini?",
+      "start": 19.0,
+      "estimate": 3.6,
+      "gapAfter": 0.7,
+      "delivery": "excited"
+    },
+    {
+      "id": "s1-n5",
+      "scene": "s1",
+      "speaker": "Najmi",
+      "text": "Aku masih punya akses ke duniaku sendiri!",
+      "start": 23.8,
+      "estimate": 3.0,
+      "gapAfter": 0.8,
+      "delivery": "confident"
+    },
+    {
+      "id": "s2-sys1",
+      "scene": "s2",
+      "speaker": "System",
+      "text": "Host, apakah Anda membutuhkan bantuan?",
+      "start": 31.0,
+      "estimate": 2.4,
+      "gapAfter": 0.8,
+      "delivery": "system"
+    },
+    {
+      "id": "s2-n1",
+      "scene": "s2",
+      "speaker": "Najmi",
+      "text": "System, apa saja yang kubutuhkan untuk memulai sebuah desa?",
+      "start": 34.6,
+      "estimate": 4.0,
+      "gapAfter": 0.8,
+      "delivery": "serious"
+    },
+    {
+      "id": "s2-sys2",
+      "scene": "s2",
+      "speaker": "System",
+      "text": "Untuk memulai pembangunan pemukiman, Host membutuhkan beberapa sumber daya.",
+      "start": 39.6,
+      "estimate": 4.8,
+      "gapAfter": 1.0,
+      "delivery": "system"
+    },
+    {
+      "id": "s2-sys3",
+      "scene": "s2",
+      "speaker": "System",
+      "text": "Disarankan untuk mempersiapkan kebutuhan dasar sebelum memulai pembangunan.",
+      "start": 45.4,
+      "estimate": 4.6,
+      "gapAfter": 0.7,
+      "delivery": "system"
+    },
+    {
+      "id": "s2-n2",
+      "scene": "s2",
+      "speaker": "Najmi",
+      "text": "Bagus! Kalau begitu, aku tahu harus mulai dari mana!",
+      "start": 51.2,
+      "estimate": 3.0,
+      "gapAfter": 0.4,
+      "delivery": "excited"
+    },
+    {
+      "id": "s3-n1",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Pertama, peralatan untuk membersihkan lahan.",
+      "start": 60.0,
+      "estimate": 3.8,
+      "gapAfter": 0.7,
+      "delivery": "thinking"
+    },
+    {
+      "id": "s3-n2",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Terus makanan, air minum...",
+      "start": 65.2,
+      "estimate": 2.8,
+      "gapAfter": 0.6,
+      "delivery": "thinking"
+    },
+    {
+      "id": "s3-n3",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Dan yang paling penting...",
+      "start": 69.2,
+      "estimate": 2.4,
+      "gapAfter": 0.5,
+      "delivery": "serious"
+    },
+    {
+      "id": "s3-n4",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Peralatan untuk membangun tempat tinggal!",
+      "start": 72.8,
+      "estimate": 3.4,
+      "gapAfter": 0.8,
+      "delivery": "excited"
+    },
+    {
+      "id": "s3-n5",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "HAH?!",
+      "ttsText": "[surprise-ah] HAH?!",
+      "start": 84.0,
+      "estimate": 1.2,
+      "gapAfter": 0.6,
+      "delivery": "shocked"
+    },
+    {
+      "id": "s3-n6",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Uang tabunganku...",
+      "start": 87.2,
+      "estimate": 2.6,
+      "gapAfter": 0.7,
+      "delivery": "shocked"
+    },
+    {
+      "id": "s3-n7",
+      "scene": "s3",
+      "speaker": "Najmi",
+      "text": "Sepertinya aku harus benar-benar serius dengan proyek ini.",
+      "ttsText": "[sigh] Sepertinya aku harus benar-benar serius dengan proyek ini.",
+      "start": 91.4,
+      "estimate": 5.0,
+      "gapAfter": 0.8,
+      "delivery": "sigh"
+    },
+    {
+      "id": "s4-n1",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Ugh... ternyata membawa barang sebanyak ini tidak semudah yang kubayangkan.",
+      "start": 108.0,
+      "estimate": 5.6,
+      "gapAfter": 0.9,
+      "delivery": "tired"
+    },
+    {
+      "id": "s4-n2",
+      "scene": "s4",
+      "speaker": "Najmi",
+      "text": "Baiklah... setidaknya aku tidak datang dengan tangan kosong.",
+      "start": 128.0,
+      "estimate": 4.6,
+      "gapAfter": 0.8,
+      "delivery": "proud"
+    },
+    {
+      "id": "s5-sys1",
+      "scene": "s5",
+      "speaker": "System",
+      "text": "Persiapan Host telah selesai.",
+      "start": 143.0,
+      "estimate": 2.4,
+      "gapAfter": 0.8,
+      "delivery": "system"
+    },
+    {
+      "id": "s5-n1",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "Heh...",
+      "start": 150.0,
+      "estimate": 1.2,
+      "gapAfter": 0.5,
+      "delivery": "surprised"
+    },
+    {
+      "id": "s5-n2",
+      "scene": "s5",
+      "speaker": "Najmi",
+      "text": "Sepertinya petualangan ini akhirnya benar-benar dimulai.",
+      "start": 152.8,
+      "estimate": 3.6,
+      "gapAfter": 0.8,
+      "delivery": "smile"
+    },
+    {
+      "id": "s6-n1",
+      "scene": "s6",
+      "speaker": "Najmi",
+      "text": "...Hah?",
+      "ttsText": "[pause 250ms] Hah?",
+      "start": 174.6,
+      "estimate": 1.0,
+      "gapAfter": 0.7,
+      "delivery": "whisper"
+    },
+    {
+      "id": "s6-n2",
+      "scene": "s6",
+      "speaker": "Najmi",
+      "text": "Jangan bilang...",
+      "start": 179.5,
+      "estimate": 1.8,
+      "gapAfter": 0.5,
+      "delivery": "whisper"
+    },
+    {
+      "id": "s6-n3",
+      "scene": "s6",
+      "speaker": "Najmi",
+      "text": "...ada sesuatu di sana?",
+      "ttsText": "[pause 250ms] ada sesuatu di sana?",
+      "start": 182.6,
+      "estimate": 2.4,
+      "gapAfter": 0.4,
+      "delivery": "whisper"
+    }
+  ],
+  "sfx": [
+    {"id": "sys-open", "at": 0.4, "src": "audio/ep2/sfx/system.wav", "volume": 0.55},
+    {"id": "ui-whoosh", "at": 1.0, "src": "audio/ep2/sfx/whoosh.wav", "volume": 0.5},
+    {"id": "idea", "at": 16.0, "src": "audio/ep2/sfx/click.wav", "volume": 0.5},
+    {"id": "system-2", "at": 30.6, "src": "audio/ep2/sfx/system.wav", "volume": 0.55},
+    {"id": "list-item-1", "at": 41.2, "src": "audio/ep2/sfx/click.wav", "volume": 0.45},
+    {"id": "list-item-2", "at": 43.0, "src": "audio/ep2/sfx/click.wav", "volume": 0.45},
+    {"id": "list-item-3", "at": 44.8, "src": "audio/ep2/sfx/click.wav", "volume": 0.45},
+    {"id": "list-item-4", "at": 46.6, "src": "audio/ep2/sfx/click.wav", "volume": 0.45},
+    {"id": "list-item-5", "at": 48.4, "src": "audio/ep2/sfx/click.wav", "volume": 0.45},
+    {"id": "door-s2", "at": 56.4, "src": "audio/ep2/sfx/door.wav", "volume": 0.7},
+    {"id": "portal-whoosh", "at": 57.1, "src": "audio/ep2/sfx/whoosh.wav", "volume": 0.7},
+    {"id": "door-s3", "at": 57.8, "src": "audio/ep2/sfx/door.wav", "volume": 0.65},
+    {"id": "phone-open", "at": 60.3, "src": "audio/ep2/sfx/notify.wav", "volume": 0.55},
+    {"id": "phone-1", "at": 62.0, "src": "audio/ep2/sfx/click.wav", "volume": 0.42},
+    {"id": "phone-2", "at": 65.5, "src": "audio/ep2/sfx/click.wav", "volume": 0.42},
+    {"id": "phone-3", "at": 69.5, "src": "audio/ep2/sfx/click.wav", "volume": 0.42},
+    {"id": "phone-4", "at": 73.0, "src": "audio/ep2/sfx/click.wav", "volume": 0.42},
+    {"id": "store-whoosh", "at": 76.0, "src": "audio/ep2/sfx/whoosh.wav", "volume": 0.6},
+    {"id": "cash", "at": 84.0, "src": "audio/ep2/sfx/cash.wav", "volume": 0.7},
+    {"id": "coin", "at": 86.0, "src": "audio/ep2/sfx/coin.wav", "volume": 0.55},
+    {"id": "comic-sting", "at": 87.0, "src": "audio/ep2/sfx/pinch.wav", "volume": 0.7},
+    {"id": "bag-pack", "at": 96.0, "src": "audio/ep2/sfx/bag.wav", "volume": 0.6},
+    {"id": "return-door", "at": 96.4, "src": "audio/ep2/sfx/door.wav", "volume": 0.65},
+    {"id": "steps-1", "at": 105.2, "src": "audio/ep2/sfx/footsteps.wav", "volume": 0.5},
+    {"id": "steps-2", "at": 109.6, "src": "audio/ep2/sfx/footsteps.wav", "volume": 0.5},
+    {"id": "bag-drop-1", "at": 112.0, "src": "audio/ep2/sfx/bag.wav", "volume": 0.6},
+    {"id": "bag-drop-2", "at": 118.0, "src": "audio/ep2/sfx/bag.wav", "volume": 0.6},
+    {"id": "bag-drop-3", "at": 124.0, "src": "audio/ep2/sfx/bag.wav", "volume": 0.6},
+    {"id": "bag-drop-4", "at": 130.0, "src": "audio/ep2/sfx/bag.wav", "volume": 0.6},
+    {"id": "wind", "at": 140.0, "src": "audio/ep2/sfx/wind.wav", "volume": 0.45},
+    {"id": "system-3", "at": 143.0, "src": "audio/ep2/sfx/system.wav", "volume": 0.55},
+    {"id": "quest-unlock", "at": 146.0, "src": "audio/ep2/sfx/quest.wav", "volume": 0.7},
+    {"id": "new-quest", "at": 152.0, "src": "audio/ep2/sfx/notify.wav", "volume": 0.5},
+    {"id": "forest-wind", "at": 170.0, "src": "audio/ep2/sfx/wind.wav", "volume": 0.38},
+    {"id": "crack", "at": 172.5, "src": "audio/ep2/sfx/crack.wav", "volume": 0.85},
+    {"id": "crack-2", "at": 174.6, "src": "audio/ep2/sfx/crack.wav", "volume": 0.5},
+    {"id": "rumble", "at": 178.0, "src": "audio/ep2/sfx/rumble.wav", "volume": 0.65},
+    {"id": "forest-whoosh", "at": 184.4, "src": "audio/ep2/sfx/whoosh.wav", "volume": 0.7},
+    {"id": "ending-impact", "at": 186.0, "src": "audio/ep2/sfx/impact.wav", "volume": 0.9}
+  ]
+}

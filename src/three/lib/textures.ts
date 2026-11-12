@@ -315,3 +315,191 @@ export const windowGlowTexture = (): THREE.Texture =>
     [1, 1],
     true,
   );
+
+/**
+ * A readable hologram card for the cabin/meadow System beats. The canvas has
+ * real transparency so the plane can sit in the set like a projected panel.
+ */
+export const hologramTexture = (
+  heading: string,
+  title: string,
+  lines: string[],
+  accent = '#7fe7ff',
+): THREE.Texture =>
+  makeTexture(
+    `holo-${heading}-${title}-${lines.join('|')}`,
+    512,
+    620,
+    (ctx) => {
+      ctx.clearRect(0, 0, 512, 620);
+      ctx.fillStyle = 'rgba(4, 22, 34, 0.86)';
+      ctx.fillRect(20, 20, 472, 580);
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(20, 20, 472, 580);
+      ctx.strokeStyle = 'rgba(127, 231, 255, 0.26)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(34, 34, 444, 552);
+      for (let y = 38; y < 580; y += 5) {
+        ctx.fillStyle = 'rgba(127, 231, 255, 0.035)';
+        ctx.fillRect(20, y, 472, 1);
+      }
+      ctx.fillStyle = accent;
+      ctx.font = 'bold 20px "DejaVu Sans Mono", monospace';
+      ctx.fillText(`// ${heading}`, 54, 84);
+      ctx.fillStyle = '#f6ead3';
+      ctx.font = 'bold 38px "DejaVu Sans", sans-serif';
+      const words = title.split(' ');
+      const rows: string[] = [];
+      let row = '';
+      for (const word of words) {
+        const next = row ? `${row} ${word}` : word;
+        if (ctx.measureText(next).width > 400 && row) {
+          rows.push(row);
+          row = word;
+        } else {
+          row = next;
+        }
+      }
+      if (row) rows.push(row);
+      rows.forEach((text, index) => ctx.fillText(text, 54, 138 + index * 44));
+      let y = 154 + rows.length * 44;
+      for (const line of lines) {
+        ctx.fillStyle = 'rgba(201, 240, 255, 0.75)';
+        ctx.font = '22px "DejaVu Sans Mono", monospace';
+        ctx.fillText(line, 54, y);
+        y += 38;
+      }
+      ctx.fillStyle = 'rgba(127, 231, 255, 0.16)';
+      ctx.fillRect(54, 500, 404, 18);
+      ctx.fillStyle = accent;
+      ctx.fillRect(54, 500, 92, 18);
+      ctx.fillStyle = 'rgba(201, 240, 255, 0.62)';
+      ctx.font = '17px "DejaVu Sans Mono", monospace';
+      ctx.fillText('PROGRESS 0 / 1', 54, 546);
+      ctx.fillText('HOST LINK // STABLE', 54, 573);
+    },
+    [1, 1],
+    true,
+  );
+
+/** Jagged magical fissure used in the forest cliffhanger. */
+export const crackTexture = (): THREE.Texture =>
+  makeTexture(
+    'crack-magic',
+    512,
+    512,
+    (ctx) => {
+      ctx.clearRect(0, 0, 512, 512);
+      const random = rng(91);
+      const branches: Array<{x: number; y: number; angle: number; length: number}> = [
+        {x: 256, y: 500, angle: -Math.PI / 2, length: 420},
+      ];
+      ctx.lineCap = 'round';
+      for (let index = 0; index < 8; index += 1) {
+        branches.push({
+          x: 180 + random() * 160,
+          y: 420 - random() * 240,
+          angle: -Math.PI / 2 + (random() - 0.5) * 2.3,
+          length: 90 + random() * 160,
+        });
+      }
+      for (const branch of branches) {
+        let x = branch.x;
+        let y = branch.y;
+        let angle = branch.angle;
+        const points: Array<[number, number]> = [[x, y]];
+        for (let step = 0; step < 9; step += 1) {
+          angle += (random() - 0.5) * 0.8;
+          x += Math.cos(angle) * (branch.length / 9);
+          y += Math.sin(angle) * (branch.length / 9);
+          points.push([x, y]);
+        }
+        ctx.strokeStyle = 'rgba(15, 6, 26, 0.95)';
+        ctx.lineWidth = 26;
+        ctx.beginPath();
+        points.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(146, 91, 255, 0.9)';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        points.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(209, 182, 255, 0.95)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        points.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
+        ctx.stroke();
+      }
+      const glow = ctx.createRadialGradient(256, 300, 20, 256, 300, 230);
+      glow.addColorStop(0, 'rgba(140, 84, 255, 0.26)');
+      glow.addColorStop(1, 'rgba(140, 84, 255, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, 512, 512);
+    },
+    [1, 1],
+    true,
+  );
+
+/** Antlered forest watcher silhouette, drawn as a cut-out for the cliffhanger. */
+export const shadowWatcherTexture = (): THREE.Texture =>
+  makeTexture(
+    'shadow-watcher',
+    512,
+    620,
+    (ctx) => {
+      ctx.clearRect(0, 0, 512, 620);
+      const glow = ctx.createRadialGradient(256, 300, 30, 256, 300, 260);
+      glow.addColorStop(0, 'rgba(111, 73, 196, 0.35)');
+      glow.addColorStop(1, 'rgba(111, 73, 196, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, 512, 620);
+      ctx.fillStyle = 'rgba(7, 8, 14, 0.98)';
+      ctx.beginPath();
+      ctx.ellipse(256, 210, 62, 82, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(197, 265);
+      ctx.quadraticCurveTo(145, 400, 165, 610);
+      ctx.lineTo(347, 610);
+      ctx.quadraticCurveTo(367, 400, 315, 265);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(7, 8, 14, 0.98)';
+      ctx.lineWidth = 22;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(210, 310);
+      ctx.lineTo(125, 410);
+      ctx.lineTo(95, 500);
+      ctx.moveTo(302, 310);
+      ctx.lineTo(387, 410);
+      ctx.lineTo(417, 500);
+      ctx.stroke();
+      ctx.lineWidth = 13;
+      ctx.beginPath();
+      ctx.moveTo(225, 145);
+      ctx.lineTo(170, 55);
+      ctx.lineTo(145, 15);
+      ctx.moveTo(170, 55);
+      ctx.lineTo(205, 20);
+      ctx.moveTo(287, 145);
+      ctx.lineTo(342, 55);
+      ctx.lineTo(367, 15);
+      ctx.moveTo(342, 55);
+      ctx.lineTo(307, 20);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(161, 113, 255, 0.48)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(256, 210, 66, 86, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(175, 244, 255, 0.95)';
+      ctx.beginPath();
+      ctx.ellipse(230, 205, 10, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(282, 205, 10, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    },
+    [1, 1],
+    true,
+  );

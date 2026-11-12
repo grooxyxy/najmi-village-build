@@ -1,0 +1,301 @@
+name: Render NAJMI Episode 02
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/NajmiEp2.tsx'
+      - 'src/Root.tsx'
+      - 'src/data/ep2/**'
+      - 'src/data/theme.ts'
+      - 'src/components/ep2/**'
+      - 'src/three/lib/**'
+      - 'src/three/props/**'
+      - 'src/three/sets/ep2/**'
+      - 'public/audio/ep2/**'
+      - 'public/sprites/**'
+      - 'scripts/generate-sprites.py'
+      - 'scripts/generate-audio-ep2.mjs'
+      - 'scripts/generate-tts-ep2.mjs'
+      - 'package.json'
+      - 'remotion.config.ts'
+      - 'tsconfig.json'
+      - '.github/workflows/render-ep2.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: najmi-render-ep2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  render-ep2:
+    name: Build and render Episode 02 (1080p30)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      VOICESTUDIO_IMAGE: ghcr.io/debpalash/voicestudio:stable
+      VOICESTUDIO_URL: http://127.0.0.1:3900
+      VOICESTUDIO_REUSE: '1'
+      VOICESTUDIO_EXTRA_MODEL_REPOS: eustlb/higgs-audio-v2-tokenizer
+      VOICESTUDIO_ACCEPT_MODEL_LICENCE: '1'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system tools
+        run: |
+          for attempt in 1 2 3 4 5; do
+            sudo apt-get -o Acquire::Retries=5 -o Acquire::ForceIPv4=true update || true
+            if sudo apt-get -o Acquire::Retries=5 -o Acquire::ForceIPv4=true install -y --no-install-recommends ffmpeg fonts-dejavu-core libgomp1; then
+              exit 0
+            fi
+            echo "apt-get failed (attempt ${attempt}/5), retrying in 15s..."
+            sleep 15
+          done
+          exit 1
+
+      - name: Install Python image tooling
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pillow
+
+      - name: Install npm dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Generate pixel sprites
+        run: python3 scripts/generate-sprites.py
+
+      - name: Generate procedural Episode 02 score and SFX
+        run: node scripts/generate-audio-ep2.mjs
+
+      - name: Restore cached Episode 02 voice takes
+        id: voice-cache-restore
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/audio/ep2/vo
+            src/data/ep2/audio-manifest.json
+          key: voicestudio-voice-ep2-v1-${{ runner.os }}-${{ hashFiles('src/data/ep2/script.json', 'scripts/generate-tts-ep2.mjs') }}
+
+      - name: Check cached Episode 02 voice takes
+        id: voice-cache
+        shell: bash
+        run: |
+          if node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const script = JSON.parse(fs.readFileSync('src/data/ep2/script.json', 'utf8'));
+          const manifest = JSON.parse(fs.readFileSync('src/data/ep2/audio-manifest.json', 'utf8'));
+          if (manifest.generated !== true || !Array.isArray(manifest.lines)) process.exit(1);
+          if (manifest.lines.length !== script.lines.length) process.exit(1);
+          for (const line of script.lines) {
+            const row = manifest.lines.find((candidate) => candidate.id === line.id);
+            if (!row || !(row.duration > 0) || !row.audio) process.exit(1);
+            const file = path.join('public', row.audio);
+            if (!fs.existsSync(file) || fs.statSync(file).size < 2000) process.exit(1);
+          }
+          console.log(`cached Episode 02 voice track is complete: ${manifest.lines.length} lines`);
+          NODE
+          then
+            echo "hit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore VoiceStudio model data
+        if: steps.voice-cache.outputs.hit != 'true'
+        continue-on-error: true
+        uses: actions/cache@v4
+        with:
+          path: .cache/voicestudio-data
+          key: voicestudio-model-${{ runner.os }}-stable-v1
+          restore-keys: |
+            voicestudio-model-${{ runner.os }}-
+
+      - name: Pull and start VoiceStudio
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p .cache/voicestudio-data
+          chmod 777 .cache/voicestudio-data
+          API_KEY="$(openssl rand -hex 24)"
+          echo "::add-mask::$API_KEY"
+          echo "VOICESTUDIO_API_KEY=$API_KEY" >> "$GITHUB_ENV"
+          df -h /
+          docker pull "$VOICESTUDIO_IMAGE"
+          docker run -d --name voicestudio \
+            --restart no \
+            --stop-timeout 30 \
+            --shm-size=2g \
+            -p 127.0.0.1:3900:3900 \
+            -e OMNIVOICE_API_KEY="$API_KEY" \
+            -e OMNIVOICE_ANALYTICS_DISABLED=1 \
+            -e OMNIVOICE_DATA_DIR=/app/omnivoice_data \
+            -e OMNIVOICE_SINGLE_ENGINE_RESIDENT=1 \
+            -e OMNIVOICE_MODEL_LOAD_TIMEOUT=2400 \
+            -e OMNIVOICE_CPU_GENERATE_TIMEOUT_S=1200 \
+            -v "$PWD/.cache/voicestudio-data:/app/omnivoice_data" \
+            "$VOICESTUDIO_IMAGE"
+          df -h /
+
+      - name: Fix VoiceStudio HTTP decoder
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          docker exec voicestudio /opt/conda/bin/python3 -m pip install --no-cache-dir --upgrade 'brotli>=1.2.0'
+          docker exec voicestudio /opt/conda/bin/python3 -c 'import brotli, importlib.metadata as m; d=brotli.Decompressor(); d.process(b"", output_buffer_limit=1024); print("brotli", m.version("brotli"))'
+          docker restart voicestudio
+
+      - name: Wait for VoiceStudio
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 240); do
+            code="$(curl -sS --max-time 5 -o /tmp/voicestudio-health.json -w '%{http_code}' \
+              -H "Authorization: Bearer ${VOICESTUDIO_API_KEY}" \
+              http://127.0.0.1:3900/health || true)"
+            if [ "$code" = "200" ]; then
+              echo "VoiceStudio is healthy after $((attempt * 5))s"
+              cat /tmp/voicestudio-health.json || true
+              exit 0
+            fi
+            if [ $((attempt % 12)) -eq 0 ]; then
+              echo "waiting for VoiceStudio (${attempt}/240, HTTP ${code})..."
+            fi
+            sleep 5
+          done
+          echo "VoiceStudio did not become healthy."
+          docker ps -a || true
+          docker logs --tail 200 voicestudio || true
+          exit 1
+
+      - name: Generate Episode 02 dialogue with VoiceStudio
+        if: steps.voice-cache.outputs.hit != 'true'
+        timeout-minutes: 200
+        run: node scripts/generate-tts-ep2.mjs
+
+      - name: Save Episode 02 voice takes
+        if: success() && steps.voice-cache-restore.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/audio/ep2/vo
+            src/data/ep2/audio-manifest.json
+          key: voicestudio-voice-ep2-v1-${{ runner.os }}-${{ hashFiles('src/data/ep2/script.json', 'scripts/generate-tts-ep2.mjs') }}
+
+      - name: VoiceStudio diagnostics
+        if: failure() && steps.voice-cache.outputs.hit != 'true'
+        run: |
+          docker ps -a || true
+          docker logs --tail 240 voicestudio || true
+          free -h || true
+          df -h / || true
+
+      - name: Stop VoiceStudio
+        if: always()
+        run: |
+          docker rm -f voicestudio 2>/dev/null || true
+          sudo chown -R "$(id -u):$(id -g)" .cache/voicestudio-data 2>/dev/null || true
+          docker image prune -af 2>/dev/null || true
+          df -h /
+
+      - name: Ensure Remotion browser
+        run: npx remotion browser ensure
+
+      - name: Render Episode 02 preview stills
+        continue-on-error: true
+        run: |
+          mkdir -p out
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s1-cabin.png --frame=150 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s2-system.png --frame=1350 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s3-phone.png --frame=2100 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s3-store.png --frame=2550 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s4-supplies.png --frame=3600 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s5-meadow.png --frame=4500 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s6-forest.png --frame=5500 --gl=swangle
+
+      - name: Render Episode 02 with SwANGLE
+        id: render-swangle
+        run: |
+          mkdir -p out
+          npx remotion render src/index.ts NajmiEp2 out/najmi-ep2.mp4 \
+            --gl=swangle \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=18 \
+            --pixel-format=yuv420p
+
+      - name: Upload Episode 02 video
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-02
+          path: |
+            out/najmi-ep2.mp4
+            out/ep2-*.png
+            src/data/ep2/audio-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retry Episode 02 with ANGLE + unsafe SwiftShader
+        id: render-angle
+        if: failure() && steps.render-swangle.outcome == 'failure'
+        run: |
+          rm -f out/najmi-ep2.mp4
+          npx remotion render src/index.ts NajmiEp2 out/najmi-ep2.mp4 \
+            --gl=angle \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=18 \
+            --pixel-format=yuv420p
+
+      - name: Upload Episode 02 fallback video
+        if: steps.render-angle.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-02-fallback
+          path: |
+            out/najmi-ep2.mp4
+            out/ep2-*.png
+            src/data/ep2/audio-manifest.json
+          retention-days: 14
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## NAJMI Episode 02 — Persiapan Menuju Dunia Baru"
+            echo ""
+            echo "- Renderer: SwANGLE (software), fallback ANGLE + unsafe SwiftShader"
+            echo "- Resolution: 1920x1080 @ 30fps"
+            echo "- Duration: 190 seconds"
+            echo "- Audio: VoiceStudio / OmniVoice (Narrator, Najmi, System) + procedural score and SFX"
+            echo "- Voice scheduling: natural generated duration, gentle max 1.08x correction"
+            echo "- Voice model: non-commercial CC-BY-NC weights; project use is a non-commercial fan short"
+            echo ""
+            if [ -f out/najmi-ep2.mp4 ]; then
+              ls -lh out/najmi-ep2.mp4
+            else
+              echo "No video produced."
+            fi
+            ls -lh out/ep2-*.png 2>/dev/null || true
+          } >> "$GITHUB_STEP_SUMMARY"

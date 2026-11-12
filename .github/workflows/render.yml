@@ -12,6 +12,15 @@ on:
       - 'remotion.config.ts'
       - 'tsconfig.json'
       - '.github/workflows/render.yml'
+    paths-ignore:
+      - 'src/NajmiEp2.tsx'
+      - 'src/data/ep2/**'
+      - 'src/components/ep2/**'
+      - 'src/three/sets/ep2/**'
+      - 'public/audio/ep2/**'
+      - 'scripts/generate-audio-ep2.mjs'
+      - 'scripts/generate-tts-ep2.mjs'
+      - '.github/workflows/render-ep2.yml'
 
 permissions:
   contents: read

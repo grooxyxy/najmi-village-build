@@ -131,7 +131,17 @@ def draw_head(d: ImageDraw.ImageDraw, pose: str, back: bool = False, lying: bool
     rect(d, 32, 7, 33, 9, HAIR_HI)
 
     # Face.
-    if pose == "surprised":
+    if pose == "phone":
+        # Eyes angled down at the screen, with a cyan reflection on one cheek.
+        rect(d, 23, 14, 25, 17, INK)
+        rect(d, 31, 14, 33, 17, INK)
+        rect(d, 23, 13, 25, 14, HAIR_HI)
+        rect(d, 31, 13, 33, 14, HAIR_HI)
+        rect(d, 22, 16, 24, 17, CYAN)
+        rect(d, 26, 20, 31, 21, INK)
+        rect(d, 21, 18, 23, 19, RED)
+        rect(d, 34, 18, 36, 19, RED)
+    elif pose == "surprised":
         rect(d, 23, 13, 27, 18, WHITE)
         rect(d, 31, 13, 35, 18, WHITE)
         rect(d, 24, 14, 26, 17, INK)
@@ -181,6 +191,37 @@ def draw_head(d: ImageDraw.ImageDraw, pose: str, back: bool = False, lying: bool
         # Determined expression used while questioning the System.
         rect(d, 22, 12, 26, 13, INK)
         rect(d, 31, 12, 35, 13, INK)
+        rect(d, 23, 14, 25, 16, INK)
+        rect(d, 31, 14, 33, 16, INK)
+        rect(d, 27, 19, 31, 20, INK)
+        rect(d, 26, 22, 32, 23, SKIN_SH)
+        rect(d, 21, 18, 23, 19, RED)
+        rect(d, 34, 18, 36, 19, RED)
+    elif pose == "think":
+        # Eyes drift up while the idea forms.
+        rect(d, 22, 11, 26, 12, INK)
+        rect(d, 31, 11, 35, 12, INK)
+        rect(d, 23, 13, 25, 15, INK)
+        rect(d, 31, 13, 33, 15, INK)
+        rect(d, 23, 12, 24, 13, WHITE)
+        rect(d, 31, 12, 32, 13, WHITE)
+        rect(d, 27, 19, 31, 20, SKIN_SH)
+        rect(d, 26, 21, 31, 22, INK)
+        rect(d, 21, 18, 23, 19, RED)
+        rect(d, 34, 18, 36, 19, RED)
+    elif pose == "carry":
+        # Focused courier face; the box hides most of the body.
+        rect(d, 23, 12, 26, 13, INK)
+        rect(d, 31, 12, 34, 13, INK)
+        rect(d, 23, 14, 25, 16, INK)
+        rect(d, 31, 14, 33, 16, INK)
+        rect(d, 26, 20, 31, 21, SKIN_SH)
+        rect(d, 21, 18, 23, 19, RED)
+        rect(d, 34, 18, 36, 19, RED)
+    elif pose == "shovel":
+        # Determined hero expression for the first quest.
+        rect(d, 22, 11, 26, 12, INK)
+        rect(d, 31, 11, 35, 12, INK)
         rect(d, 23, 14, 25, 16, INK)
         rect(d, 31, 14, 33, 16, INK)
         rect(d, 27, 19, 31, 20, INK)
@@ -371,6 +412,42 @@ def draw_body(d: ImageDraw.ImageDraw, pose: str, back: bool = False, lying: bool
         ell(d, 11, 41, 16, 46, SKIN)
         ell(d, 47, 27, 53, 33, SKIN)
         rect(d, 49, 30, 53, 32, SKIN_SH)
+    elif pose == "phone":
+        stroke(d, [(17, 28), (13, 35), (13, 42)], 5, HOODIE)
+        stroke(d, [(39, 28), (43, 24), (40, 21)], 5, HOODIE)
+        ell(d, 11, 41, 16, 46, SKIN)
+        ell(d, 38, 21, 43, 26, SKIN)
+        rect(d, 38, 24, 43, 26, SKIN_SH)
+    elif pose == "think":
+        stroke(d, [(17, 28), (13, 34), (13, 42)], 5, HOODIE)
+        stroke(d, [(39, 28), (43, 25), (42, 21)], 5, HOODIE)
+        ell(d, 11, 41, 16, 46, SKIN)
+    elif pose == "carry":
+        stroke(d, [(17, 28), (13, 34), (15, 38)], 5, HOODIE)
+        stroke(d, [(39, 28), (43, 34), (41, 38)], 5, HOODIE)
+        # Cardboard box fills the arms.
+        rect(d, 14, 31, 42, 47, (170, 121, 72))
+        rect(d, 14, 31, 42, 33, (201, 153, 98))
+        rect(d, 14, 31, 16, 47, (139, 92, 52))
+        rect(d, 40, 31, 42, 47, (146, 97, 55))
+        rect(d, 27, 31, 29, 47, (197, 151, 104))
+        rect(d, 17, 35, 25, 37, (126, 82, 46))
+        rect(d, 31, 35, 39, 37, (126, 82, 46))
+        ell(d, 11, 36, 16, 41, SKIN)
+        ell(d, 40, 36, 45, 41, SKIN)
+        rect(d, 11, 39, 16, 41, SKIN_SH)
+        rect(d, 40, 39, 45, 41, SKIN_SH)
+    elif pose == "shovel":
+        stroke(d, [(17, 28), (13, 34), (13, 42)], 5, HOODIE)
+        stroke(d, [(39, 28), (43, 34), (43, 41)], 5, HOODIE)
+        ell(d, 11, 41, 16, 46, SKIN)
+        ell(d, 40, 40, 46, 46, SKIN)
+        # Wooden shaft and steel blade.
+        rect(d, 43, 37, 46, 65, (126, 84, 50))
+        rect(d, 44, 37, 45, 65, (177, 125, 78))
+        poly(d, [(39, 63), (50, 63), (52, 69), (41, 69)], (153, 161, 158))
+        rect(d, 41, 63, 50, 64, (201, 207, 203))
+        rect(d, 38, 65, 41, 67, (106, 79, 55))
     elif pose == "shout":
         stroke(d, [(17, 28), (10, 32), (6, 39)], 5, HOODIE)
         stroke(d, [(39, 28), (46, 32), (50, 39)], 5, HOODIE)
@@ -390,6 +467,20 @@ def standing(pose: str, back: bool = False) -> Image.Image:
     draw = ImageDraw.Draw(image)
     draw_body(draw, pose, back=back)
     draw_head(draw, pose, back=back)
+    if pose == "think" and not back:
+        # Hand resting against the chin, drawn above the face so it reads.
+        stroke(draw, [(39, 28), (42, 24), (40, 22)], 4, HOODIE_SH)
+        ell(draw, 34, 19, 40, 25, SKIN)
+        rect(draw, 34, 23, 39, 25, SKIN_SH)
+        rect(draw, 36, 19, 39, 20, SKIN_HI)
+        rect(draw, 35, 20, 36, 23, SKIN_SH)
+    if pose == "phone" and not back:
+        rect(draw, 38, 18, 44, 28, INK)
+        rect(draw, 39, 19, 43, 27, CYAN_DIM)
+        rect(draw, 40, 20, 42, 23, CYAN)
+        rect(draw, 40, 24, 42, 25, WHITE)
+        ell(draw, 38, 25, 43, 30, SKIN)
+        rect(draw, 38, 28, 43, 30, SKIN_SH)
     # Small chest highlight and seam details.
     if not back:
         rect(draw, 27, 29, 29, 31, HOODIE_HI)
@@ -475,6 +566,10 @@ def main():
     sprites["najmi-cheer.png"] = standing("cheer")
     sprites["najmi-point.png"] = standing("point")
     sprites["najmi-shout.png"] = standing("shout")
+    sprites["najmi-think.png"] = standing("think")
+    sprites["najmi-carry.png"] = standing("carry")
+    sprites["najmi-shovel.png"] = standing("shovel")
+    sprites["najmi-phone-stand.png"] = standing("phone")
     sprites["najmi-back.png"] = standing("idle", back=True)
     sprites["najmi-back-walk-1.png"] = standing("walk1", back=True)
     sprites["najmi-back-walk-2.png"] = standing("walk2", back=True)
