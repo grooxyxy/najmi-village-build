@@ -9,9 +9,9 @@ Video cerita isekai/komedi berdurasi **216 detik (3:36)**, 1920×1080, 30 fps. D
 - 5 adegan + title card, total 6480 frame.
 - 42 baris dialog/narasi berbahasa Indonesia.
 - 14 cue SFX dan satu skor musik prosedural 216 detik.
-- 9 pose sprite Najmi + sprite burung, semuanya digambar oleh skrip.
+- 17 pose sprite Najmi (idle, 4 langkah depan, 4 langkah belakang, sedih, kaget, cubit, sorak, tunjuk, bentak, telentang, ponsel) + sprite burung, semuanya digambar oleh skrip.
 - UI System holo-cyan, overlay ponsel “27 lamaran / 0 balasan”, caption, transisi, dan title card.
-- Pipeline CI: generate sprite → generate musik/SFX → download Piper → sintesis TTS → render ANGLE dengan fallback SwiftShader → upload artifact.
+- Pipeline CI: generate sprite → generate musik/SFX → jalankan VoiceStudio/OmniVoice (dengan cache) → typecheck → render SwANGLE dengan fallback ANGLE + SwiftShader → unggah artifact + still validasi.
 
 ## Adegan
 
@@ -39,10 +39,11 @@ Workflow ada di `.github/workflows/render.yml` dan bisa dipicu manual (`workflow
 3. Buka tab **Actions → Render NAJMI Episode 01 → Run workflow**.
 4. Setelah selesai, unduh artifact **najmi-episode-01**:
    - `najmi-ep1.mp4`
-   - `thumbnail.png`
+   - `door-deep.png` (cek kedalaman portal kamar mandi)
+   - `final-village.png`
    - `audio-manifest.json`
 
-Render penuh memakai `--gl=angle`. Jika ANGLE gagal, workflow otomatis mengulang dengan `--gl=swiftshader` dan mengunggah artifact terpisah. Render 1080p dengan adegan 3D bisa memakan waktu puluhan menit; job diberi batas 300 menit.
+Render penuh memakai `--gl=swangle`. Jika SwANGLE gagal, workflow otomatis mengulang dengan `--gl=angle` dan mengunggah artifact terpisah. Render 1080p dengan adegan 3D bisa memakan waktu puluhan menit; job diberi batas 300 menit. VoiceStudio memakai image Docker `ghcr.io/debpalash/voicestudio:stable`, model OmniVoice ~2.4 GB, dan cache model + hasil VO agar render ulang tidak mengulang sintesis.
 
 ### Yang dilakukan CI
 
@@ -50,12 +51,14 @@ Render penuh memakai `--gl=angle`. Jika ANGLE gagal, workflow otomatis mengulang
 npm install
 python3 scripts/generate-sprites.py
 node scripts/generate-audio.mjs
-bash scripts/setup-piper.sh
+# mulai container VoiceStudio di 127.0.0.1:3900
 node scripts/generate-tts.mjs
-npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=angle --concurrency=2
+npm run typecheck
+npx remotion still ... --frame=1800 --gl=swangle
+npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=swangle --concurrency=2
 ```
 
-CI juga memasang `ffmpeg`, `fonts-dejavu-core`, dan Pillow. Tidak ada aset audio eksternal yang diunduh selain binary Piper dan model suaranya.
+CI memasang `ffmpeg`, `fonts-dejavu-core`, dan Pillow. VoiceStudio dijalankan sebagai service Docker; model dan hasil VO disimpan lewat `actions/cache`. Tidak ada aset audio eksternal selain model OmniVoice.
 
 ## Menjalankan di lokal (opsional)
 
@@ -70,15 +73,15 @@ npx remotion studio src/index.ts
 Tanpa menjalankan `generate-audio.mjs` dan `generate-tts.mjs`, video tetap bisa dipreview dengan caption berbasis estimasi dan tanpa audio. Untuk audio lengkap, sediakan `ffmpeg`/`ffprobe`, lalu:
 
 ```bash
-bash scripts/setup-piper.sh
+# Jalankan VoiceStudio lebih dulu (Docker), lalu:
 node scripts/generate-audio.mjs
-node scripts/generate-tts.mjs
+VOICESTUDIO_API_KEY=... VOICESTUDIO_URL=http://127.0.0.1:3900 node scripts/generate-tts.mjs
 ```
 
 Perintah render lokal:
 
 ```bash
-npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=angle
+npx remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=swangle
 ```
 
 ## Struktur proyek
@@ -95,20 +98,20 @@ src/three/props/BuildingKit.tsx kabin, pohon, gunung, sungai, pagar, penanda des
 src/three/sets/                 kamar, kamar mandi/portal, interior kabin, meadow
 scripts/generate-sprites.py     generator pixel-art (Pillow)
 scripts/generate-audio.mjs      skor + SFX WAV murni Node
-scripts/generate-tts.mjs        Piper + ffmpeg + penulis manifest
-scripts/setup-piper.sh          unduh Piper + voice Indonesia
+scripts/generate-tts.mjs        VoiceStudio/OmniVoice + ffmpeg + penulis manifest
 .github/workflows/render.yml    pipeline render
 ```
 
 ### Cara kerja timing
 
-`src/data/script.json` menyimpan waktu dan estimasi durasi. Setelah Piper menghasilkan suara, `generate-tts.mjs` mengukur durasi nyata, menyesuaikan kecepatan dengan `atempo` agar setiap baris tidak melewati batas adegan, lalu menulis `src/data/audio-manifest.json`. File manifest itulah yang menjadi sumber kebenaran untuk `<Audio>` dan caption. Kalau tidak ada manifest (misalnya saat pertama kali membuka Studio), caption memakai estimasi dari naskah.
+`src/data/script.json` menyimpan waktu dan estimasi durasi. Setelah VoiceStudio menghasilkan suara, `generate-tts.mjs` memangkas senyap, mengatur pitch/karakter suara, menyesuaikan kecepatan dengan `atempo` agar setiap baris tidak melewati batas adegan, lalu menulis `src/data/audio-manifest.json`. File manifest itulah yang menjadi sumber kebenaran untuk `<Audio>` dan caption. Kalau tidak ada manifest (misalnya saat pertama kali membuka Studio), caption memakai estimasi dari naskah.
 
 ## Suara
 
-- **TTS:** [Piper](https://github.com/rhasspy/piper), MIT, offline.
-- **Voice:** `id_ID-news_tts-medium` dari [rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices). Periksa lisensi voice sebelum publikasi komersial.
-- **Narator / Najmi / System** dibedakan lewat `length_scale`, pitch (`asetrate` + `aresample`), dan filter ffmpeg; System mendapat echo digital tipis.
+- **TTS:** [VoiceStudio](https://github.com/debpalash/VoiceStudio) + engine OmniVoice (`k2-fsa/OmniVoice`).
+- **Lisensi model:** weight OmniVoice memakai CC-BY-NC dan komponen tokenizer pihak ketiga. Workflow disetel untuk produksi **non-komersial**; jangan aktifkan `VOICESTUDIO_ACCEPT_MODEL_LICENCE` untuk penggunaan komersial tanpa meninjau ulang lisensi.
+- **Narator / Najmi / System** dibedakan lewat voice-design (`male, middle-aged, low pitch`, `male, young adult`), seed, pitch (`asetrate` + `aresample`), EQ/kompresi, dan filter ffmpeg; System mendapat tremolo + echo digital.
+- **Ekspresi:** beberapa baris sedih memakai tag `[sigh]` agar napas/keluhan ikut terdengar; teks caption tetap bersih.
 - **Musik & SFX:** disintesis dari nol oleh `scripts/generate-audio.mjs`; tidak memakai sampel atau aset berhak cipta.
 - **Sprite:** dibuat oleh `scripts/generate-sprites.py`; hasilnya ada di `public/sprites/` dan `contact-sheet.png` untuk inspeksi.
 

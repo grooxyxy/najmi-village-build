@@ -3,17 +3,15 @@ import * as THREE from 'three';
 import {COLORS, SPRITES} from '../../data/theme';
 import {CameraRig, sampleCamera, type CameraKey} from '../lib/camera';
 import {
-  BlobShadow,
   Box,
   Cylinder,
   GlowSprite,
   Ico,
   Plane,
   UnlitPlane,
-  type Vec3,
 } from '../lib/primitives';
 import {DustMotes, Embers} from '../lib/particles';
-import {PixelSprite} from '../lib/PixelSprite';
+import {CharacterActor} from '../lib/PixelSprite';
 import {glowTexture, roofTexture, stoneTexture, skyTexture, warmGlowTexture, windowGlowTexture, woodTexture} from '../lib/textures';
 import {Mountains, Sun, Tree} from '../props/BuildingKit';
 
@@ -144,12 +142,29 @@ export const CabinInteriorScene: React.FC<{frame: number}> = ({frame}) => {
   const enterWalk = seg(frame, 0, 120);
   const approach = seg(frame, 300, 450);
   const atWindow = frame >= 450;
+  const moving = frame < 125 || (frame >= 300 && frame < 458);
 
-  const characterX = enterWalk * 0.8 + approach * -1.6 + (1 - enterWalk) * 3.2;
-  const characterZ = -3.2 + enterWalk * 2.0 - approach * 1.85;
-  const moving = frame < 140 || (frame > 300 && frame < 460);
-  const walkPose = Math.floor(frame / 8) % 2 === 0 ? SPRITES.walk1 : SPRITES.walk2;
-  const sprite = atWindow ? SPRITES.back : moving ? walkPose : frame < 300 ? SPRITES.sad : SPRITES.idle;
+  const characterX = 3.2 - enterWalk * 2.4 - approach * 1.6;
+  const characterZ = -1.15 - enterWalk * 1.85 - approach * 0.12;
+  const walkPose = [
+    SPRITES.backWalk1,
+    SPRITES.backWalk2,
+    SPRITES.backWalk3,
+    SPRITES.backWalk4,
+  ][Math.floor(frame / 7) % 4];
+  const sprite = atWindow
+    ? SPRITES.back
+    : moving
+      ? walkPose
+      : frame < 180
+        ? SPRITES.surprised
+        : frame < 260
+          ? SPRITES.sad
+          : SPRITES.pinch;
+  const arriveJump =
+    frame >= 112 && frame < 164
+      ? Math.sin(((frame - 112) / 52) * Math.PI) * 0.06
+      : 0;
 
   return (
     <>
@@ -193,10 +208,19 @@ export const CabinInteriorScene: React.FC<{frame: number}> = ({frame}) => {
         <Box size={[1.4, 1.8, 0.06]} position={[0, 0, 0.06]} color="#9d764b" />
       </group>
 
-      <group position={[characterX, 0, characterZ]}>
-        <PixelSprite src={sprite} position={[0, 0.875, 0]} height={1.75} flip={!atWindow} />
-        <BlobShadow position={[0, 0.015, 0]} radius={0.46} opacity={0.24} />
-      </group>
+      <CharacterActor
+        src={sprite}
+        frame={frame}
+        position={[characterX, 0, characterZ]}
+        height={1.75}
+        walking={moving}
+        walkSpeed={5.6}
+        phase={1.2}
+        jump={arriveJump}
+        lean={moving ? 0.01 : Math.sin(frame / 95) * 0.005}
+        shadowRadius={0.46}
+        shadowOpacity={0.24}
+      />
 
       <UnlitPlane
         width={4.5}

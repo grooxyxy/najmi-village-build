@@ -25,6 +25,13 @@ jobs:
     name: Build and render (1080p30)
     runs-on: ubuntu-24.04
     timeout-minutes: 300
+    env:
+      VOICESTUDIO_IMAGE: ghcr.io/debpalash/voicestudio:stable
+      VOICESTUDIO_URL: http://127.0.0.1:3900
+      VOICESTUDIO_REUSE: '1'
+      # OmniVoice weights are CC-BY-NC; this episode is a non-commercial fan short.
+      # Set this to 0 if the intended use is commercial.
+      VOICESTUDIO_ACCEPT_MODEL_LICENCE: '1'
 
     steps:
       - name: Checkout
@@ -66,24 +73,147 @@ jobs:
       - name: Generate procedural score and SFX
         run: node scripts/generate-audio.mjs
 
-      - name: Cache Piper
+      - name: Restore cached voice takes
+        id: voice-cache-restore
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/audio/vo
+            src/data/audio-manifest.json
+          key: voicestudio-voice-v2-${{ runner.os }}-${{ hashFiles('src/data/script.json', 'scripts/generate-tts.mjs') }}
+
+      - name: Check cached voice takes
+        id: voice-cache
+        shell: bash
+        run: |
+          if node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const script = JSON.parse(fs.readFileSync('src/data/script.json', 'utf8'));
+          const manifest = JSON.parse(fs.readFileSync('src/data/audio-manifest.json', 'utf8'));
+          if (manifest.generated !== true || !Array.isArray(manifest.lines)) process.exit(1);
+          if (manifest.lines.length !== script.lines.length) process.exit(1);
+          for (const line of script.lines) {
+            const row = manifest.lines.find((candidate) => candidate.id === line.id);
+            if (!row || !(row.duration > 0) || !row.audio) process.exit(1);
+            const file = path.join('public', row.audio);
+            if (!fs.existsSync(file) || fs.statSync(file).size < 2000) process.exit(1);
+          }
+          console.log(`cached voice track is complete: ${manifest.lines.length} lines`);
+          NODE
+          then
+            echo "hit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore VoiceStudio model data
+        if: steps.voice-cache.outputs.hit != 'true'
+        continue-on-error: true
         uses: actions/cache@v4
         with:
-          path: .cache/piper
-          key: piper-${{ runner.os }}-2023.11.14-2-id_ID-news_tts-medium
+          path: .cache/voicestudio-data
+          key: voicestudio-model-${{ runner.os }}-stable-v1
+          restore-keys: |
+            voicestudio-model-${{ runner.os }}-
 
-      - name: Download Piper + Indonesian voice
-        run: bash scripts/setup-piper.sh
+      - name: Pull and start VoiceStudio
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p .cache/voicestudio-data
+          chmod 777 .cache/voicestudio-data
+          API_KEY="$(openssl rand -hex 24)"
+          echo "::add-mask::$API_KEY"
+          echo "VOICESTUDIO_API_KEY=$API_KEY" >> "$GITHUB_ENV"
+          df -h /
+          docker pull "$VOICESTUDIO_IMAGE"
+          docker run -d --name voicestudio \
+            --restart no \
+            --stop-timeout 30 \
+            --shm-size=2g \
+            -p 127.0.0.1:3900:3900 \
+            -e OMNIVOICE_API_KEY="$API_KEY" \
+            -e OMNIVOICE_ANALYTICS_DISABLED=1 \
+            -e OMNIVOICE_DATA_DIR=/app/omnivoice_data \
+            -e OMNIVOICE_SINGLE_ENGINE_RESIDENT=1 \
+            -e OMNIVOICE_MODEL_LOAD_TIMEOUT=2400 \
+            -e OMNIVOICE_CPU_GENERATE_TIMEOUT_S=1200 \
+            -v "$PWD/.cache/voicestudio-data:/app/omnivoice_data" \
+            "$VOICESTUDIO_IMAGE"
+          df -h /
 
-      - name: Generate dialogue with Piper
+      - name: Wait for VoiceStudio
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 240); do
+            code="$(curl -sS --max-time 5 -o /tmp/voicestudio-health.json -w '%{http_code}' \
+              -H "Authorization: Bearer ${VOICESTUDIO_API_KEY}" \
+              http://127.0.0.1:3900/health || true)"
+            if [ "$code" = "200" ]; then
+              echo "VoiceStudio is healthy after $((attempt * 5))s"
+              cat /tmp/voicestudio-health.json || true
+              exit 0
+            fi
+            if [ $((attempt % 12)) -eq 0 ]; then
+              echo "waiting for VoiceStudio (${attempt}/240, HTTP ${code})..."
+            fi
+            sleep 5
+          done
+          echo "VoiceStudio did not become healthy."
+          docker ps -a || true
+          docker logs --tail 200 voicestudio || true
+          exit 1
+
+      - name: Generate dialogue with VoiceStudio
+        if: steps.voice-cache.outputs.hit != 'true'
+        timeout-minutes: 175
         run: node scripts/generate-tts.mjs
 
-      - name: Typecheck (non-blocking)
+      - name: Save voice takes
+        if: success() && steps.voice-cache-restore.outputs.cache-hit != 'true'
         continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/audio/vo
+            src/data/audio-manifest.json
+          key: voicestudio-voice-v2-${{ runner.os }}-${{ hashFiles('src/data/script.json', 'scripts/generate-tts.mjs') }}
+
+      - name: VoiceStudio diagnostics
+        if: failure() && steps.voice-cache.outputs.hit != 'true'
+        run: |
+          docker ps -a || true
+          docker logs --tail 240 voicestudio || true
+          free -h || true
+          df -h / || true
+
+      - name: Stop VoiceStudio
+        if: always()
+        run: |
+          docker rm -f voicestudio 2>/dev/null || true
+          sudo chown -R "$(id -u):$(id -g)" .cache/voicestudio-data 2>/dev/null || true
+          docker image prune -af 2>/dev/null || true
+          df -h /
+
+      - name: Typecheck
         run: npm run typecheck
 
       - name: Ensure Remotion browser
         run: npx remotion browser ensure
+
+      - name: Render preview stills
+        continue-on-error: true
+        run: |
+          mkdir -p out
+          npx remotion still src/index.ts NajmiEp1 out/door-deep.png \
+            --frame=1800 \
+            --gl=swangle
+          npx remotion still src/index.ts NajmiEp1 out/final-village.png \
+            --frame=6120 \
+            --gl=swangle
 
       - name: Render with SwANGLE
         id: render-swangle
@@ -96,14 +226,6 @@ jobs:
             --crf=18 \
             --pixel-format=yuv420p
 
-      - name: Render thumbnail
-        if: success()
-        continue-on-error: true
-        run: |
-          npx remotion still src/index.ts NajmiEp1 out/thumbnail.png \
-            --frame=4800 \
-            --gl=swangle
-
       - name: Upload video
         if: success()
         uses: actions/upload-artifact@v4
@@ -111,7 +233,8 @@ jobs:
           name: najmi-episode-01
           path: |
             out/najmi-ep1.mp4
-            out/thumbnail.png
+            out/door-deep.png
+            out/final-village.png
             src/data/audio-manifest.json
           if-no-files-found: warn
           retention-days: 14
@@ -135,6 +258,8 @@ jobs:
           name: najmi-episode-01-fallback
           path: |
             out/najmi-ep1.mp4
+            out/door-deep.png
+            out/final-village.png
             src/data/audio-manifest.json
           retention-days: 14
 
@@ -147,11 +272,15 @@ jobs:
             echo "- Renderer: SwANGLE (software), fallback ANGLE + unsafe SwiftShader"
             echo "- Resolution: 1920x1080 @ 30fps"
             echo "- Duration: 216 seconds"
-            echo "- Audio: Piper id_ID-news_tts-medium + procedural score"
+            echo "- Audio: VoiceStudio / OmniVoice (Narrator, Najmi, System) + procedural score"
+            echo "- Voice model: non-commercial CC-BY-NC weights; project use is a non-commercial fan short"
             echo ""
             if [ -f out/najmi-ep1.mp4 ]; then
               ls -lh out/najmi-ep1.mp4
             else
               echo "No video produced."
+            fi
+            if [ -f out/door-deep.png ]; then
+              ls -lh out/door-deep.png
             fi
           } >> "$GITHUB_STEP_SUMMARY"

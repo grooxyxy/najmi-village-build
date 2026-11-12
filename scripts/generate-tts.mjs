@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 /**
- * Synthesize all dialogue with Piper (offline, MIT) and build the audio
- * manifest that drives both <Audio> and the captions.
+ * VoiceStudio / OmniVoice dialogue pipeline.
  *
- * The render never calls this script. CI runs setup-piper.sh first.
+ * CI starts the VoiceStudio container, then this script:
+ *   1. accepts the model terms when explicitly allowed,
+ *   2. warms the model with one short request,
+ *   3. synthesizes every line with a speaker-specific voice design,
+ *   4. applies pitch, EQ, compression and loudness treatment with FFmpeg,
+ *   5. writes public/audio/vo/*.wav and src/data/audio-manifest.json.
+ *
+ * All HTTP calls use curl on purpose: the first OmniVoice load can spend far
+ * longer than Node's fetch header timeout downloading/loading the model.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,169 +22,306 @@ const SCRIPT_PATH = path.join(ROOT, 'src', 'data', 'script.json');
 const MANIFEST_PATH = path.join(ROOT, 'src', 'data', 'audio-manifest.json');
 const VO_DIR = path.join(ROOT, 'public', 'audio', 'vo');
 const RAW_DIR = path.join(ROOT, '.cache', 'tts-raw');
-const SAMPLE_RATE = 22050;
-
-fs.mkdirSync(VO_DIR, {recursive: true});
-fs.mkdirSync(RAW_DIR, {recursive: true});
-
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-
-const piperDir = process.env.PIPER_DIR
-  ? path.resolve(ROOT, process.env.PIPER_DIR)
-  : path.join(ROOT, '.cache', 'piper');
-const piperBin = process.env.PIPER_BIN
-  ? path.resolve(ROOT, process.env.PIPER_BIN)
-  : path.join(piperDir, 'piper');
-const piperModel = process.env.PIPER_MODEL
-  ? path.resolve(ROOT, process.env.PIPER_MODEL)
-  : path.join(piperDir, 'id_ID-news_tts-medium.onnx');
-
-const requireFile = (file, hint) => {
-  if (!fs.existsSync(file)) {
-    console.error(`Missing ${file}\n${hint}`);
-    process.exit(1);
-  }
-};
-
-requireFile(piperBin, 'Run scripts/setup-piper.sh first (CI does this automatically).');
-requireFile(piperModel, 'The Indonesian Piper voice was not downloaded. Run scripts/setup-piper.sh.');
-
-const commandExists = (command) => {
-  const result = spawnSync(command, ['-version'], {encoding: 'utf8'});
-  return !result.error;
-};
-
-if (!commandExists('ffmpeg') || !commandExists('ffprobe')) {
-  console.error('ffmpeg and ffprobe are required to process the TTS audio.');
-  process.exit(1);
-}
+const API = (process.env.VOICESTUDIO_URL || 'http://127.0.0.1:3900').replace(/\/$/, '');
+const API_KEY = process.env.VOICESTUDIO_API_KEY || '';
+const MODEL = process.env.VOICESTUDIO_MODEL || 'omnivoice';
+const MODEL_REPO = process.env.VOICESTUDIO_MODEL_REPO || 'k2-fsa/OmniVoice';
+const ACCEPT_TERMS = process.env.VOICESTUDIO_ACCEPT_MODEL_LICENCE === '1';
+const REUSE = process.env.VOICESTUDIO_REUSE === '1';
+const SKIP_WARMUP = process.env.VOICESTUDIO_SKIP_WARMUP === '1';
+const SAMPLE_RATE = 48000;
+const NUM_STEP = Number(process.env.VOICESTUDIO_NUM_STEP || 32);
+const MAX_TIME = Number(process.env.VOICESTUDIO_MAX_TIME || 2400);
+const CURL = process.env.CURL_BIN || 'curl';
 
 const script = JSON.parse(fs.readFileSync(SCRIPT_PATH, 'utf8'));
+const sceneById = new Map(script.scenes.map((scene) => [scene.id, scene]));
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const round = (value, places = 3) => Number(value.toFixed(places));
 
-const wavDuration = (file) => {
-  const buffer = fs.readFileSync(file);
-  if (buffer.toString('ascii', 0, 4) !== 'RIFF' || buffer.toString('ascii', 8, 12) !== 'WAVE') {
-    throw new Error(`Not a WAV file: ${file}`);
-  }
-  let offset = 12;
-  let byteRate = SAMPLE_RATE * 2;
-  while (offset + 8 <= buffer.length) {
-    const id = buffer.toString('ascii', offset, offset + 4);
-    const size = buffer.readUInt32LE(offset + 4);
-    if (id === 'fmt ') {
-      byteRate = buffer.readUInt32LE(offset + 16);
-    }
-    if (id === 'data') {
-      return size / Math.max(1, byteRate);
-    }
-    offset += 8 + size + (size % 2);
-  }
-  throw new Error(`Could not read WAV duration: ${file}`);
-};
-
-const mediaDuration = (file) => {
-  const result = spawnSync(
-    'ffprobe',
-    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', file],
-    {encoding: 'utf8'},
-  );
-  const parsed = Number.parseFloat((result.stdout ?? '').trim());
-  if (Number.isFinite(parsed) && parsed > 0) {
-    return parsed;
-  }
-  return wavDuration(file);
-};
-
-const speakerStyle = {
+const SPEAKERS = {
   Narrator: {
-    lengthScale: 1.06,
-    noiseScale: 0.55,
-    noiseW: 0.7,
-    pitch: 0.92,
-    effect: 'highpass=f=70,lowpass=f=9800,aecho=0.8:0.55:36:0.1',
+    instruct: 'male, middle-aged, low pitch',
+    pitch: 0.89,
+    pace: 1.045,
+    guidance: 2.1,
+    eq: [
+      'equalizer=f=120:t=q:w=0.8:g=3.2',
+      'equalizer=f=330:t=q:w=1.0:g=-1.8',
+      'equalizer=f=2800:t=q:w=1.2:g=1.1',
+      'acompressor=threshold=-19dB:ratio=2.6:attack=10:release=180',
+      'aecho=0.8:0.3:42:0.055',
+    ].join(','),
   },
   Najmi: {
-    lengthScale: 0.96,
-    noiseScale: 0.66,
-    noiseW: 0.8,
-    pitch: 1.04,
-    effect: 'highpass=f=80,equalizer=f=190:t=q:w=1:g=1.2,lowpass=f=11000',
+    instruct: 'male, young adult',
+    pitch: 1.02,
+    pace: 1.0,
+    guidance: 1.9,
+    eq: [
+      'highpass=f=85',
+      'equalizer=f=240:t=q:w=1.0:g=-1.2',
+      'equalizer=f=3000:t=q:w=1.1:g=2.2',
+      'acompressor=threshold=-18dB:ratio=3.2:attack=6:release=120',
+    ].join(','),
   },
   System: {
-    lengthScale: 1.0,
-    noiseScale: 0.36,
-    noiseW: 0.5,
-    pitch: 1.03,
-    effect: 'highpass=f=180,lowpass=f=7200,aecho=0.8:0.45:24:0.16',
+    instruct: 'male, middle-aged, low pitch',
+    pitch: 0.96,
+    pace: 1.01,
+    guidance: 2.2,
+    eq: [
+      'highpass=f=170',
+      'lowpass=f=5200',
+      'equalizer=f=900:t=q:w=1.4:g=2.4',
+      'equalizer=f=2600:t=q:w=1.3:g=-3.4',
+      'acompressor=threshold=-22dB:ratio=4.5:attack=4:release=80',
+      'tremolo=f=26:d=0.09',
+      'aecho=0.8:0.55:24|38:0.2|0.12',
+    ].join(','),
   },
 };
 
-const lines = [];
-let cursor = 0;
+// A few audible breaths/sighs are part of the performance, not the caption.
+const TTS_TEXT_OVERRIDES = {
+  's1-n2': '[sigh] Lamaran ditolak lagi...',
+  's1-n4a': '[sigh] Ah... lapar.',
+  's5-n1d': '[sigh] Aku saja tidak punya pengalaman membangun rumah...',
+  's5-n2': '[sigh] ...Sepertinya hidupku baru saja menjadi jauh lebih rumit.',
+};
 
-for (const line of script.lines) {
-  const style = speakerStyle[line.speaker] ?? speakerStyle.Najmi;
-  const rawFile = path.join(RAW_DIR, `${line.id}.wav`);
-  const outFile = path.join(VO_DIR, `${line.id}.wav`);
+const log = (...args) => console.log('[tts]', ...args);
 
-  console.log(`[tts] ${line.id} (${line.speaker}) ${line.text.slice(0, 54)}...`);
-
-  const piper = spawnSync(
-    piperBin,
-    [
-      '--model',
-      piperModel,
-      '--output_file',
-      rawFile,
-      '--length_scale',
-      String(style.lengthScale),
-      '--noise_scale',
-      String(style.noiseScale),
-      '--noise_w',
-      String(style.noiseW),
-      '--sentence_silence',
-      '0.14',
-    ],
-    {
-      input: `${line.text}\n`,
+function ensureTools() {
+  for (const bin of [CURL, 'ffmpeg', 'ffprobe']) {
+    const result = spawnSync('sh', ['-c', `command -v ${JSON.stringify(bin)}`], {
       encoding: 'utf8',
-      env: {
-        ...process.env,
-        LD_LIBRARY_PATH: `${piperDir}:${process.env.LD_LIBRARY_PATH ?? ''}`,
-      },
-      maxBuffer: 8 * 1024 * 1024,
-    },
-  );
+    });
+    if (result.status !== 0 || !result.stdout.trim()) {
+      throw new Error(`Required binary not found: ${bin}`);
+    }
+  }
+  if (!API_KEY) {
+    throw new Error('VOICESTUDIO_API_KEY is required.');
+  }
+}
 
-  if (piper.status !== 0) {
-    console.error(piper.stdout);
-    console.error(piper.stderr);
-    throw new Error(`Piper failed for ${line.id} (exit ${piper.status}).`);
+async function apiJson(route, options = {}) {
+  const headers = {
+    Authorization: `Bearer ${API_KEY}`,
+    Accept: 'application/json',
+    ...(options.body ? {'Content-Type': 'application/json'} : {}),
+    ...(options.headers || {}),
+  };
+  const response = await fetch(`${API}${route}`, {...options, headers});
+  const text = await response.text();
+  let body = text;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    // Keep the raw body for diagnostics.
+  }
+  if (!response.ok) {
+    const detail =
+      typeof body === 'string' ? body.slice(0, 1200) : JSON.stringify(body).slice(0, 1200);
+    throw new Error(`${options.method || 'GET'} ${route} failed (${response.status}): ${detail}`);
+  }
+  return body;
+}
+
+async function ensureLicence() {
+  let details;
+  try {
+    details = await apiJson(`/models/licenses/details/${MODEL_REPO}`);
+  } catch (error) {
+    log(`licence details unavailable; continuing to the synthesis gate: ${error.message}`);
+    return;
   }
 
-  const rawDuration = mediaDuration(rawFile);
-  const lineIndex = script.lines.indexOf(line);
-  const nextStart = script.lines[lineIndex + 1]?.start ?? 214.5;
-  const scene = script.scenes.find(
-    (entry) => line.start >= entry.start && line.start < entry.end,
+  const acceptance = details?.acceptance || details || {};
+  const state = String(acceptance.state || acceptance.status || '').toLowerCase();
+  const accepted =
+    acceptance.accepted === true ||
+    state === 'accepted' ||
+    state === 'accept' ||
+    state === 'ok';
+  if (accepted) {
+    log(`model terms already accepted for ${MODEL_REPO}`);
+    return;
+  }
+
+  const fingerprint = acceptance.fingerprint || details?.fingerprint;
+  const licence = details?.licence || details?.license || details?.terms?.license || 'unknown';
+  log(`model ${MODEL_REPO} licence: ${licence}`);
+  if (!fingerprint) {
+    log('no fingerprint returned by the licence endpoint; the synthesis gate will decide.');
+    return;
+  }
+  if (!ACCEPT_TERMS) {
+    throw new Error(
+      `Model terms for ${MODEL_REPO} are not accepted. ` +
+        'Set VOICESTUDIO_ACCEPT_MODEL_LICENCE=1 to confirm you accept the model card terms.',
+    );
+  }
+
+  await apiJson('/models/licenses/accept', {
+    method: 'POST',
+    body: JSON.stringify({repo_id: MODEL_REPO, fingerprint, accepted: true}),
+  });
+  log(`model terms accepted for ${MODEL_REPO}`);
+}
+
+function existingManifestIsComplete() {
+  if (!REUSE) return false;
+  try {
+    const existing = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+    if (existing.generated !== true || !Array.isArray(existing.lines)) return false;
+    if (existing.lines.length !== script.lines.length) return false;
+    for (const line of script.lines) {
+      const row = existing.lines.find((candidate) => candidate.id === line.id);
+      if (!row || !(row.duration > 0) || !row.audio) return false;
+      const file = path.join(ROOT, 'public', row.audio);
+      if (!fs.existsSync(file) || fs.statSync(file).size < 2000) return false;
+    }
+    log(`reusing ${existing.lines.length} cached voice lines`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function curlSynthesis({input, instruct, seed, outPath, label}) {
+  fs.mkdirSync(path.dirname(outPath), {recursive: true});
+  fs.rmSync(outPath, {force: true});
+  const body = JSON.stringify({
+    model: MODEL,
+    voice: 'default',
+    input,
+    instruct,
+    language: 'id',
+    response_format: 'wav',
+    speed: 1.0,
+    seed,
+    num_step: NUM_STEP,
+    guidance_scale: SPEAKERS[label].guidance,
+  });
+
+  const args = [
+    '-sS',
+    '--noproxy',
+    '*',
+    '--connect-timeout',
+    '20',
+    '--max-time',
+    String(MAX_TIME),
+    '--retry',
+    '3',
+    '--retry-delay',
+    '10',
+    '--retry-connrefused',
+    '-o',
+    outPath,
+    '-w',
+    '%{http_code}',
+    '-H',
+    `Authorization: Bearer ${API_KEY}`,
+    '-H',
+    'Accept: audio/wav',
+    '-H',
+    'Content-Type: application/json',
+    '--data-binary',
+    '@-',
+    `${API}/v1/audio/speech`,
+  ];
+
+  const started = Date.now();
+  const result = spawnSync(CURL, args, {
+    input: body,
+    encoding: 'utf8',
+    maxBuffer: 4 * 1024 * 1024,
+  });
+  const elapsed = ((Date.now() - started) / 1000).toFixed(1);
+  const status = Number(String(result.stdout || '').trim());
+  if (result.error) {
+    throw new Error(`curl failed for ${label}: ${result.error.message}`);
+  }
+  if (result.status !== 0) {
+    throw new Error(`curl exited ${result.status} for ${label}: ${String(result.stderr).slice(0, 800)}`);
+  }
+  if (status !== 200) {
+    let detail = '';
+    try {
+      detail = fs.readFileSync(outPath, 'utf8').slice(0, 1200);
+    } catch {
+      // No body.
+    }
+    throw new Error(`VoiceStudio returned ${status} for ${label} after ${elapsed}s: ${detail}`);
+  }
+  const size = fs.statSync(outPath).size;
+  if (size < 1000) {
+    throw new Error(`VoiceStudio returned a suspiciously small file for ${label} (${size} bytes)`);
+  }
+  log(`synthesized ${label} in ${elapsed}s (${(size / 1024).toFixed(0)} KiB)`);
+  return elapsed;
+}
+
+function probe(file) {
+  const duration = spawnSync(
+    'ffprobe',
+    [
+      '-v',
+      'error',
+      '-show_entries',
+      'format=duration',
+      '-of',
+      'default=nokey=1:noprint_wrappers=1',
+      file,
+    ],
+    {encoding: 'utf8'},
   );
-  const sceneEnd = scene?.end ?? 216;
-  const window = Math.max(0.75, Math.min(nextStart, sceneEnd) - line.start - 0.16);
-  const target = clamp(Math.min(line.estimate * 1.08, window), 0.75, 8.8);
-  const tempo = clamp(rawDuration / (style.pitch * target), 0.78, 1.46);
-  const pitchedRate = Math.round(SAMPLE_RATE * style.pitch);
+  const sampleRate = spawnSync(
+    'ffprobe',
+    [
+      '-v',
+      'error',
+      '-select_streams',
+      'a:0',
+      '-show_entries',
+      'stream=sample_rate',
+      '-of',
+      'default=nokey=1:noprint_wrappers=1',
+      file,
+    ],
+    {encoding: 'utf8'},
+  );
+  const durationValue = Number(String(duration.stdout || '').trim());
+  const sampleRateValue = Number(String(sampleRate.stdout || '').trim());
+  return {
+    duration: Number.isFinite(durationValue) && durationValue > 0 ? durationValue : 0,
+    sampleRate: Number.isFinite(sampleRateValue) && sampleRateValue > 0 ? sampleRateValue : 24000,
+  };
+}
 
-  const filter = [
-    `asetrate=${pitchedRate}`,
-    `aresample=${SAMPLE_RATE}`,
-    `atempo=${tempo.toFixed(4)}`,
-    style.effect,
-    'loudnorm=I=-18:TP=-2:LRA=9',
-    'adelay=35',
-    'apad=pad_dur=0.08',
-  ].join(',');
+function postProcess({line, index, rawPath, outPath}) {
+  const info = probe(rawPath);
+  const scene = sceneById.get(line.scene) || script.scenes[script.scenes.length - 1];
+  const next = script.lines[index + 1];
+  const boundary = next ? Math.min(next.start, scene.end) : scene.end;
+  const window = Math.max(0.55, boundary - line.start - 0.16);
+  const speaker = SPEAKERS[line.speaker] || SPEAKERS.Najmi;
+  const trimmed = Math.max(0.35, info.duration - 0.18);
+  const target = Math.min(window, Math.max(0.4, trimmed * speaker.pace));
+  const shiftedRate = Math.max(4000, Math.round(info.sampleRate * speaker.pitch));
+  const tempo = clamp(trimmed / Math.max(0.1, speaker.pitch * target), 0.72, 1.65);
 
-  const ffmpeg = spawnSync(
+  const trim =
+    'silenceremove=start_periods=1:start_duration=0.03:start_threshold=-45dB,' +
+    'areverse,silenceremove=start_periods=1:start_duration=0.06:start_threshold=-45dB,areverse';
+  const pitch = `asetrate=${shiftedRate},aresample=${SAMPLE_RATE},atempo=${tempo.toFixed(4)}`;
+  const finish = `loudnorm=I=-16:TP=-1.5:LRA=10,alimiter=limit=0.95,adelay=60,apad=pad_dur=0.06`;
+  const filter = [trim, pitch, speaker.eq, finish].filter(Boolean).join(',');
+
+  const result = spawnSync(
     'ffmpeg',
     [
       '-hide_banner',
@@ -185,7 +329,7 @@ for (const line of script.lines) {
       'error',
       '-y',
       '-i',
-      rawFile,
+      rawPath,
       '-af',
       filter,
       '-ac',
@@ -194,50 +338,101 @@ for (const line of script.lines) {
       String(SAMPLE_RATE),
       '-c:a',
       'pcm_s16le',
-      outFile,
+      outPath,
     ],
-    {encoding: 'utf8', maxBuffer: 8 * 1024 * 1024},
+    {encoding: 'utf8'},
   );
-
-  if (ffmpeg.status !== 0) {
-    console.error(ffmpeg.stdout);
-    console.error(ffmpeg.stderr);
-    throw new Error(`ffmpeg failed for ${line.id} (exit ${ffmpeg.status}).`);
+  if (result.status !== 0) {
+    throw new Error(`ffmpeg failed for ${line.id}: ${String(result.stderr).slice(0, 1200)}`);
   }
 
-  const duration = mediaDuration(outFile);
-  const start = Math.max(line.start, cursor + 0.08);
-  cursor = start + duration + 0.04;
+  const finalInfo = probe(outPath);
+  const duration = finalInfo.duration > 0 ? finalInfo.duration : target;
+  log(
+    `${line.id} ${line.speaker} raw=${info.duration.toFixed(2)}s final=${duration.toFixed(2)}s ` +
+      `target=${target.toFixed(2)}s tempo=${tempo.toFixed(3)}`,
+  );
+  return duration;
+}
 
-  if (start - line.start > 1.5) {
-    console.warn(
-      `[tts] ${line.id} starts ${(start - line.start).toFixed(2)}s later than authored (${line.start}s).`,
-    );
+async function main() {
+  if (!fs.existsSync(SCRIPT_PATH)) throw new Error(`Missing script: ${SCRIPT_PATH}`);
+  if (existingManifestIsComplete()) {
+    return;
+  }
+  ensureTools();
+  fs.mkdirSync(VO_DIR, {recursive: true});
+  fs.mkdirSync(RAW_DIR, {recursive: true});
+
+  await ensureLicence();
+
+  if (!SKIP_WARMUP) {
+    log('warming OmniVoice; the first load may download ~2.4 GB of weights');
+    const warmupPath = path.join(RAW_DIR, 'warmup.wav');
+    curlSynthesis({
+      input: '[sigh] Halo, namaku Najmi.',
+      instruct: SPEAKERS.Narrator.instruct,
+      seed: 1207,
+      outPath: warmupPath,
+      label: 'Narrator',
+    });
+    fs.rmSync(warmupPath, {force: true});
   }
 
-  lines.push({
-    id: line.id,
-    start: Number(start.toFixed(3)),
-    duration: Number(duration.toFixed(3)),
-    audio: `audio/vo/${line.id}.wav`,
-    speaker: line.speaker,
-    text: line.text,
-  });
+  const generated = [];
+  let cursor = 0;
+  const started = Date.now();
+
+  for (let index = 0; index < script.lines.length; index += 1) {
+    const line = script.lines[index];
+    const speaker = SPEAKERS[line.speaker];
+    if (!speaker) throw new Error(`Unknown speaker: ${line.speaker}`);
+    const text = TTS_TEXT_OVERRIDES[line.id] || line.text;
+    const rawPath = path.join(RAW_DIR, `${line.id}.wav`);
+    const outName = `${line.id}.wav`;
+    const outPath = path.join(VO_DIR, outName);
+    const seed = 1301 + index * 37;
+
+    log(`[${index + 1}/${script.lines.length}] ${line.id} (${line.speaker}/${line.delivery})`);
+    curlSynthesis({
+      input: text,
+      instruct: speaker.instruct,
+      seed,
+      outPath: rawPath,
+      label: line.speaker,
+    });
+    const duration = postProcess({line, index, rawPath, outPath});
+
+    const start = round(Math.max(line.start, cursor + 0.04));
+    if (start > line.start + 0.5) {
+      log(`warning: ${line.id} shifted from ${line.start.toFixed(2)}s to ${start.toFixed(2)}s`);
+    }
+    generated.push({
+      id: line.id,
+      start,
+      duration: round(duration),
+      audio: `audio/vo/${outName}`,
+      speaker: line.speaker,
+      text: line.text,
+    });
+    cursor = start + duration;
+  }
+
+  const manifest = {
+    generated: true,
+    voice: `voicestudio-${MODEL}`,
+    sampleRate: SAMPLE_RATE,
+    lines: generated,
+  };
+  fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  const last = generated[generated.length - 1];
+  log(`wrote ${generated.length} lines to ${MANIFEST_PATH}`);
+  if (last) log(`last line ends at ${(last.start + last.duration).toFixed(2)}s / ${script.duration}s`);
+  log(`total synthesis time ${((Date.now() - started) / 1000 / 60).toFixed(1)} min`);
 }
 
-const manifest = {
-  generated: true,
-  voice: 'id_ID-news_tts-medium',
-  sampleRate: SAMPLE_RATE,
-  lines,
-};
-
-fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
-
-const last = lines[lines.length - 1];
-const lastEnd = last ? last.start + last.duration : 0;
-console.log(`[tts] wrote ${path.relative(ROOT, MANIFEST_PATH)} (${lines.length} lines)`);
-console.log(`[tts] last line ends at ${lastEnd.toFixed(2)}s`);
-if (lastEnd > 214.8) {
-  console.warn('[tts] WARNING: last line extends past the safe ending window.');
-}
+main().catch((error) => {
+  console.error('[tts] FAILED:', error?.stack || error);
+  process.exit(1);
+});

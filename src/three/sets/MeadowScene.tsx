@@ -1,8 +1,7 @@
 import React from 'react';
-import {COLORS, SPRITES} from '../../data/theme';
+import {SPRITES} from '../../data/theme';
 import {CameraRig, sampleCamera, type CameraKey} from '../lib/camera';
 import {
-  BlobShadow,
   Box,
   GlowSprite,
   Ico,
@@ -11,7 +10,7 @@ import {
   type Vec3,
 } from '../lib/primitives';
 import {DustMotes, Sparkles} from '../lib/particles';
-import {PixelSprite} from '../lib/PixelSprite';
+import {CharacterActor, PixelSprite} from '../lib/PixelSprite';
 import {glowTexture, grassTexture, skyTexture, warmGlowTexture} from '../lib/textures';
 import {
   Cabin,
@@ -152,16 +151,50 @@ export const MeadowScene: React.FC<{
     (mode === 'build' ? clamp01((frame - 960) / 220) : 0);
   const showPlot = mode !== 'reveal';
   const showNajmi = mode !== 'reveal';
+  const buildWalk = mode === 'build' ? smooth((frame - 600) / 165) : 0;
+  const walking = mode === 'build' && frame >= 600 && frame < 770;
+  const buildWalkPose = [
+    SPRITES.backWalk1,
+    SPRITES.backWalk2,
+    SPRITES.backWalk3,
+    SPRITES.backWalk4,
+  ][Math.floor(frame / 7) % 4];
+
   const najmiPose =
     mode === 'system'
-      ? frame < 240
+      ? frame < 180
         ? SPRITES.surprised
-        : frame < 900
+        : frame < 450
           ? SPRITES.idle
-          : SPRITES.surprised
-      : SPRITES.back;
-  const najmiX = mode === 'system' ? -1.4 : 2.1;
-  const najmiZ = mode === 'system' ? -0.8 : 2.2;
+          : frame < 600
+            ? SPRITES.pinch
+            : frame < 930
+              ? SPRITES.point
+              : frame < 1120
+                ? SPRITES.shout
+                : SPRITES.sad
+      : walking
+        ? buildWalkPose
+        : frame < 600
+          ? SPRITES.back
+          : frame < 870
+            ? SPRITES.pinch
+            : frame < 1155
+              ? SPRITES.sad
+              : frame < 1245
+                ? SPRITES.pinch
+                : frame < 1310
+                  ? SPRITES.sad
+                  : SPRITES.back;
+
+  const najmiX = mode === 'system' ? -1.4 + Math.sin(frame / 110) * 0.12 : 2.1 + buildWalk * 1.5;
+  const najmiZ = mode === 'system' ? -0.8 + Math.sin(frame / 135) * 0.05 : 2.2 + buildWalk * 0.85;
+  const najmiJump =
+    mode === 'system' && frame >= 64 && frame < 132
+      ? Math.sin(((frame - 64) / 68) * Math.PI) * 0.16
+      : 0;
+  const najmiLean =
+    mode === 'build' && frame >= 870 && frame < 1310 ? -0.022 : mode === 'system' ? Math.sin(frame / 95) * 0.006 : 0;
 
   return (
     <>
@@ -253,10 +286,19 @@ export const MeadowScene: React.FC<{
       <DustMotes frame={frame} count={22} area={[18, 3, 12]} origin={[0, 2.2, 0]} opacity={0.18} color="#ffe8b6" />
 
       {showNajmi ? (
-        <group position={[najmiX, 0, najmiZ]}>
-          <PixelSprite src={najmiPose} position={[0, 0.875, 0]} height={1.75} />
-          <BlobShadow position={[0, 0.015, 0]} radius={0.48} opacity={0.24} />
-        </group>
+        <CharacterActor
+          src={najmiPose}
+          frame={frame}
+          position={[najmiX, 0, najmiZ]}
+          height={1.75}
+          walking={walking}
+          walkSpeed={5.6}
+          phase={2.1}
+          jump={najmiJump}
+          lean={najmiLean}
+          shadowRadius={0.48}
+          shadowOpacity={0.24}
+        />
       ) : null}
 
       <GlowSprite

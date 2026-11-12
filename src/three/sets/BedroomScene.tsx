@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import {COLORS, SPRITES} from '../../data/theme';
 import {CameraRig, sampleCamera, type CameraKey} from '../lib/camera';
 import {
-  BlobShadow,
   Box,
   Cylinder,
   GlowSprite,
@@ -13,10 +12,8 @@ import {
   type Vec3,
 } from '../lib/primitives';
 import {DustMotes} from '../lib/particles';
-import {LyingSprite, PixelSprite} from '../lib/PixelSprite';
+import {CharacterActor, LyingSprite} from '../lib/PixelSprite';
 import {warmGlowTexture, windowGlowTexture, woodTexture} from '../lib/textures';
-
-const DURATION = 35 * 30;
 
 const cameraKeys: CameraKey[] = [
   {f: 0, position: [10, 14, 12], target: [-1, 1.5, -1], fov: 40},
@@ -199,14 +196,23 @@ export const BedroomScene: React.FC<{frame: number}> = ({frame}) => {
   const lyingOut = segment(frame, 770, 810);
   const standingIn = segment(frame, 770, 810);
   const walk = segment(frame, 930, 1030);
+  const walking = frame >= 930 && frame < 1036;
 
   const standingPose =
-    frame < 870 ? SPRITES.sad : frame < 930 ? SPRITES.surprised : SPRITES.walk1;
-  const walkPose =
-    Math.floor(frame / 8) % 2 === 0 ? SPRITES.walk1 : SPRITES.walk2;
-  const sprite = frame > 930 ? walkPose : standingPose;
+    frame < 870 ? SPRITES.sad : SPRITES.surprised;
+  const walkPose = [
+    SPRITES.backWalk1,
+    SPRITES.backWalk2,
+    SPRITES.backWalk3,
+    SPRITES.backWalk4,
+  ][Math.floor(frame / 7) % 4];
+  const sprite = walking ? walkPose : frame >= 1030 ? SPRITES.back : standingPose;
+  const wakeJump =
+    frame >= 778 && frame < 834
+      ? Math.sin(((frame - 778) / 56) * Math.PI) * 0.075
+      : 0;
 
-  const characterX = 4.55 + walk * 0.25;
+  const characterX = 4.55 + walk * 0.32;
   const characterZ = 1.15 - walk * 5.15;
 
   return (
@@ -233,21 +239,25 @@ export const BedroomScene: React.FC<{frame: number}> = ({frame}) => {
 
       <LyingSprite
         src={SPRITES.phone}
-        position={[2.1, 0.97, 0.15]}
         width={1.02}
         opacity={1 - lyingOut}
-        rotationZ={0.04}
+        rotationZ={0.04 + Math.sin(frame / 52) * 0.008}
+        position={[2.1, 0.974 + Math.sin(frame / 48) * 0.006, 0.15]}
       />
 
-      <group position={[characterX, 0, characterZ]}>
-        <PixelSprite
-          src={sprite}
-          position={[0, 0.875, 0]}
-          height={1.75}
-          opacity={standingIn}
-        />
-        <BlobShadow position={[0, 0.015, 0]} radius={0.48} opacity={0.22 * standingIn} />
-      </group>
+      <CharacterActor
+        src={sprite}
+        frame={frame}
+        position={[characterX, 0, characterZ]}
+        height={1.75}
+        opacity={standingIn}
+        walking={walking}
+        walkSpeed={5.6}
+        phase={0.4}
+        jump={wakeJump}
+        shadowRadius={0.48}
+        shadowOpacity={0.22}
+      />
 
       <DustMotes frame={frame} count={34} area={[10, 4.2, 8]} origin={[0, 2.5, 0]} opacity={0.38} />
     </>
