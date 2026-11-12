@@ -63,7 +63,7 @@ const forestKeys: CameraKey[] = [
   {f: 80, position: [4.4, 1.9, 6.2], target: [0.2, 1.7, -4.5], fov: 30},
   {f: 160, position: [3.2, 1.5, 5.4], target: [0.4, 2.0, -5.4], fov: 26},
   {f: 260, position: [3.9, 2.2, 6.2], target: [-1.0, 2.0, -6.4], fov: 28},
-  {f: 400, position: [2.6, 1.5, 4.6], target: [2.5, 1.8, -7.2], fov: 22},
+  {f: 400, position: [3.3, 2.0, 5.0], target: [1.2, 1.8, -4.0], fov: 34},
   {f: 520, position: [5.6, 3.0, 7.1], target: [0.0, 2.0, -7.0], fov: 32},
   {f: 599, position: [2.5, 1.2, 4.2], target: [3.5, 2.6, -8.7], fov: 18},
 ];
@@ -296,7 +296,7 @@ export const Ep2WildsScene: React.FC<{frame: number; mode: Ep2WildsMode}> = ({fr
       walking = back > 0.2;
       lean = -0.015;
     } else if (frame < 430) {
-      sprite = frame < 340 ? SPRITES.surprised : SPRITES.sad;
+      sprite = SPRITES.surprised;
       characterX = -0.35 + Math.sin(frame / 70) * 0.05;
       characterZ = -1.05;
       jump = frame >= 280 && frame < 335 ? Math.sin(((frame - 280) / 55) * Math.PI) * 0.08 : 0;
@@ -349,8 +349,8 @@ export const Ep2WildsScene: React.FC<{frame: number; mode: Ep2WildsMode}> = ({fr
         </>
       ) : (
         <>
-          <ambientLight intensity={0.16} color="#8ea9d4" />
-          <hemisphereLight args={['#8cadd8', '#151a20', 0.34]} />
+          <ambientLight intensity={0.21} color="#8ea9d4" />
+          <hemisphereLight args={['#8cadd8', '#151a20', 0.4]} />
           <directionalLight
             position={[-7, 12, 8]}
             intensity={1.55}
@@ -366,6 +366,7 @@ export const Ep2WildsScene: React.FC<{frame: number; mode: Ep2WildsMode}> = ({fr
             shadow-camera-far={42}
             shadow-bias={-0.0005}
           />
+          <pointLight position={[-1.1, 1.8, 0.6]} color="#9db8ff" intensity={1.15} distance={6} decay={2} />
           <pointLight position={[2.3, 1.3, -7.7]} color="#a071ff" intensity={forestGlow * 7} distance={14} decay={2} />
           <pointLight position={[3.5, 2.8, -9.4]} color="#8fd7ff" intensity={forestGlow * 2.2} distance={9} decay={2} />
         </>

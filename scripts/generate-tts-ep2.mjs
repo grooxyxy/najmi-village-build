@@ -391,6 +391,27 @@ function probe(file) {
   };
 }
 
+function wavPeak(file) {
+  const buffer = fs.readFileSync(file);
+  if (buffer.length < 44 || buffer.toString('ascii', 0, 4) !== 'RIFF') return 0;
+  let offset = 12;
+  while (offset + 8 <= buffer.length) {
+    const id = buffer.toString('ascii', offset, offset + 4);
+    const size = buffer.readUInt32LE(offset + 4);
+    if (id === 'data') {
+      const end = Math.min(buffer.length, offset + 8 + size);
+      let peak = 0;
+      for (let index = offset + 8; index + 1 < end; index += 2) {
+        const value = Math.abs(buffer.readInt16LE(index));
+        if (value > peak) peak = value;
+      }
+      return peak;
+    }
+    offset += 8 + size + (size % 2);
+  }
+  return 0;
+}
+
 function postProcess({line, rawPath, outPath}) {
   const info = probe(rawPath);
   const speaker = SPEAKERS[line.speaker] || SPEAKERS.Najmi;
@@ -492,7 +513,27 @@ async function main() {
       outPath: rawPath,
       label: line.speaker,
     });
-    const duration = postProcess({line, rawPath, outPath});
+    let duration = postProcess({line, rawPath, outPath});
+    if (wavPeak(outPath) < 80 || duration < 0.16) {
+      log(
+        `warning: ${line.id} produced a silent or near-empty take ` +
+          `(${duration.toFixed(2)}s, peak ${wavPeak(outPath)}); retrying with an alternate seed`,
+      );
+      await curlSynthesis({
+        input: text,
+        instruct,
+        seed: seed + 137,
+        outPath: rawPath,
+        label: line.speaker,
+      });
+      duration = postProcess({line, rawPath, outPath});
+    }
+    if (wavPeak(outPath) < 80 || duration < 0.14) {
+      throw new Error(
+        `${line.id} still has unusable audio after retry ` +
+          `(${duration.toFixed(2)}s, peak ${wavPeak(outPath)})`,
+      );
+    }
     rendered.push({line, duration, outName, outPath});
   }
 

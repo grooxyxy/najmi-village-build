@@ -9,7 +9,6 @@ import {
   Ico,
   Plane,
   UnlitPlane,
-  type Vec3,
 } from '../../lib/primitives';
 import {DustMotes, Embers} from '../../lib/particles';
 import {CharacterActor} from '../../lib/PixelSprite';
@@ -235,24 +234,13 @@ const SupplyPile: React.FC<{frame: number; amount: number}> = ({frame, amount}) 
   );
 };
 
-const label = (text: string, position: Vec3, rotation: Vec3 = [0, 0, 0]) => (
-  <UnlitPlane
-    width={1.35}
-    height={0.42}
-    position={position}
-    rotation={rotation}
-    map={hologramTexture('SUPPLY', text, [], '#e0b25a')}
-    opacity={0.9}
-  />
-);
-
 export const Ep2CabinScene: React.FC<{frame: number; mode: Ep2CabinMode}> = ({frame, mode}) => {
   const keys = mode === 'plan' ? planKeys : mode === 'system' ? systemKeys : suppliesKeys;
   const pose = sampleCamera(keys, frame);
   const doorOpen = mode === 'supplies' ? clamp01(seg(frame, 30, 70) * 0.55 + (frame > 160 ? 0.35 : 0) + seg(frame, 690, 720) * 0.15) : mode === 'plan' ? seg(frame, 820, 880) * 0.45 : 0.04;
   const hologram =
     mode === 'plan'
-      ? hologramTexture('MAIN QUEST', 'FOUND YOUR FIRST VILLAGE', ['OBJECTIVE: BUILD YOUR FIRST BUILDING', 'PROGRESS: 0 / 1', 'REWARD: VILLAGE EXP'], '#7fe7ff')
+      ? hologramTexture('MAIN QUEST', 'FOUND YOUR FIRST VILLAGE', ['BUILD YOUR FIRST BUILDING', 'PROGRESS: 0 / 1', 'REWARD: VILLAGE EXP'], '#7fe7ff')
       : hologramTexture('SYSTEM ADVISORY', 'PREPARATION CHECKLIST', ['01  CONSTRUCTION TOOLS', '02  FOOD SUPPLIES', '03  WATER SUPPLIES', '04  BUILDING MATERIALS', '05  PLANT SEEDS'], '#7fe7ff');
 
   let sprite: string = SPRITES.think;
@@ -363,7 +351,6 @@ export const Ep2CabinScene: React.FC<{frame: number; mode: Ep2CabinMode}> = ({fr
       <GlowSprite position={[-1.25, 2.5, -2.6]} scale={3.6} map={glowTexture()} color="#7fe7ff" opacity={mode === 'supplies' ? 0 : 0.24} />
 
       {mode === 'supplies' ? <SupplyPile frame={frame} amount={supplies} /> : null}
-      {mode === 'supplies' ? label('TOOLBOX', [2.45, 0.62, -1.2], [0, -0.08, 0]) : null}
 
       <CharacterActor
         src={sprite}

@@ -150,7 +150,7 @@ const Checkout: React.FC<{frame: number; total: number}> = ({frame, total}) => {
       <UnlitPlane width={0.56} height={0.32} position={[0.92, 1.29, 0.09]} color="#8bf2c8" opacity={screenGlow * 0.6} />
       <Box size={[0.12, 0.45, 0.12]} position={[0.92, 1.02, -0.15]} color="#202422" />
       <Cylinder radiusTop={0.1} radiusBottom={0.12} height={0.42} segments={8} position={[0.92, 2.0, -0.2]} color="#777f77" />
-      <UnlitPlane width={0.85} height={0.52} position={[0.92, 2.25, -0.15]} map={signTexture(`TOTAL ${total > 0 ? Math.round(total * 1000000).toLocaleString('id-ID') : '---'}`)} />
+      <UnlitPlane width={0.85} height={0.52} position={[0.92, 2.25, -0.15]} map={signTexture('KASIR 03')} />
       <GlowSprite position={[0.92, 2.25, -0.4]} scale={1.5} map={glowTexture()} color="#8bf2c8" opacity={screenGlow * 0.2} />
       <Box size={[0.5, 0.55, 0.4]} position={[-1.1, 1.2, -0.05]} color="#6b8f81" />
       <Box size={[0.42, 0.42, 0.34]} position={[-1.1, 1.24, 0.12]} color="#d6dfcc" />
@@ -296,9 +296,9 @@ export const Ep2StoreScene: React.FC<{frame: number}> = ({frame}) => {
       <Fluorescent position={[1.6, 4.55, -1.6]} frame={frame} />
       <Fluorescent position={[4.3, 4.55, 0.8]} frame={frame} flicker={3.1} />
 
-      <group position={[0.0, 2.55, -3.55]}>
-        <UnlitPlane width={4.3} height={0.82} position={[0, 0, 0]} map={signTexture('ALAT TUKANG // PROMO')} />
-        <GlowSprite position={[0, 0, -0.18]} scale={2.8} map={warmGlowTexture()} color="#ffe6b0" opacity={0.12} />
+      <group position={[1.0, 2.55, -3.85]}>
+        <UnlitPlane width={3.2} height={0.61} position={[0, 0, 0]} map={signTexture('PROMO HARI INI')} />
+        <GlowSprite position={[0, 0, -0.18]} scale={2.4} map={warmGlowTexture()} color="#ffe6b0" opacity={0.12} />
       </group>
 
       <CharacterActor

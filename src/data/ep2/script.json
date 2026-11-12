@@ -264,11 +264,11 @@
       "id": "s5-n1",
       "scene": "s5",
       "speaker": "Najmi",
-      "text": "Heh...",
+      "text": "Heh... tidak buruk.",
       "start": 150.0,
-      "estimate": 1.2,
+      "estimate": 1.8,
       "gapAfter": 0.5,
-      "delivery": "surprised"
+      "delivery": "proud"
     },
     {
       "id": "s5-n2",
