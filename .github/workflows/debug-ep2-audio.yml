@@ -1,0 +1,45 @@
+name: Inspect Episode 02 voice takes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Episode 02 voice cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/audio/ep2/vo
+            src/data/ep2/audio-manifest.json
+          key: voicestudio-voice-ep2-v1-Linux-470c8df583ccc7d04be7ac7ef6da6b94335606847f69cecd41e3f48b94d197a4
+          fail-on-cache-miss: true
+
+      - name: Probe voice takes
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          manifest = json.loads(pathlib.Path('src/data/ep2/audio-manifest.json').read_text())
+          for line in manifest['lines']:
+              path = pathlib.Path('public', line['audio'])
+              out = subprocess.check_output([
+                  'ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+                  '-of', 'default=nokey=1:noprint_wrappers=1', str(path),
+              ]).decode().strip()
+              print(f"{line['id']:8s} start={line['start']:7.2f} manifest={line['duration']:6.3f} file={float(out):6.3f} {path}")
+          PY
+
+      - name: Upload voice takes
+        uses: actions/upload-artifact@v4
+        with:
+          name: najmi-episode-02-voice-takes
+          path: |
+            public/audio/ep2/vo
+            src/data/ep2/audio-manifest.json
+          if-no-files-found: error
+          retention-days: 14
