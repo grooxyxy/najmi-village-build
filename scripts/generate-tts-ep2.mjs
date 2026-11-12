@@ -338,6 +338,15 @@ async function curlSynthesis({input, instruct, seed, outPath, label}) {
       }
     }
 
+    const engineUnavailable =
+      status === 400 && /model_not_available|Engine '.*' is not available/.test(rawBody);
+    if (attempt < 2 && (engineUnavailable || status === 429 || status >= 500)) {
+      const waitMs = engineUnavailable ? 8000 : 3000;
+      log(`VoiceStudio returned ${status} for ${label}; retrying in ${waitMs / 1000}s`);
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      continue;
+    }
+
     throw new Error(
       `VoiceStudio returned ${status} for ${label} after ${elapsed.toFixed(1)}s: ${rawBody.slice(0, 1200)}`,
     );

@@ -161,6 +161,30 @@ jobs:
           docker exec voicestudio /opt/conda/bin/python3 -c 'import brotli, importlib.metadata as m; d=brotli.Decompressor(); d.process(b"", output_buffer_limit=1024); print("brotli", m.version("brotli"))'
           docker restart voicestudio
 
+      - name: Patch OmniVoice transformers compatibility
+        if: steps.voice-cache.outputs.hit != 'true'
+        run: |
+          set -euo pipefail
+          docker exec -i voicestudio /opt/conda/bin/python3 - <<'PY'
+          from pathlib import Path
+          path = Path('/app/omnivoice/models/omnivoice.py')
+          source = path.read_text()
+          needle = 'from transformers import (\n    AutoFeatureExtractor,\n'
+          if 'from transformers.models.auto import AutoFeatureExtractor' not in source:
+              if needle not in source:
+                  raise SystemExit('OmniVoice import block not found')
+              source = source.replace(
+                  needle,
+                  'from transformers.models.auto import AutoFeatureExtractor\nfrom transformers import (\n',
+                  1,
+              )
+              path.write_text(source)
+              print('patched', path)
+          else:
+              print('already patched', path)
+          PY
+          docker restart voicestudio
+
       - name: Wait for VoiceStudio
         if: steps.voice-cache.outputs.hit != 'true'
         run: |
