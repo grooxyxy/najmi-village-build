@@ -284,7 +284,14 @@ export const signTexture = (text: string): THREE.Texture =>
       ctx.lineWidth = 8;
       ctx.strokeRect(8, 8, 496, 144);
       ctx.fillStyle = '#f6ead3';
-      ctx.font = 'bold 64px "DejaVu Sans", "Liberation Sans", sans-serif';
+      const fontFor = (size: number) =>
+        `bold ${size}px "DejaVu Sans", "Liberation Sans", sans-serif`;
+      let fontSize = 64;
+      ctx.font = fontFor(fontSize);
+      while (fontSize > 28 && ctx.measureText(text).width > 456) {
+        fontSize -= 2;
+        ctx.font = fontFor(fontSize);
+      }
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(text, 256, 82);

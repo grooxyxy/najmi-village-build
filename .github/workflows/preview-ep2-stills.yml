@@ -58,13 +58,9 @@ jobs:
         run: |
           mkdir -p out
           npx remotion still src/index.ts NajmiEp2 out/ep2-s1-cabin.png --frame=150 --gl=swangle
-          npx remotion still src/index.ts NajmiEp2 out/ep2-s2-system.png --frame=1350 --gl=swangle
-          npx remotion still src/index.ts NajmiEp2 out/ep2-s3-phone.png --frame=2100 --gl=swangle
           npx remotion still src/index.ts NajmiEp2 out/ep2-s3-store.png --frame=2550 --gl=swangle
-          npx remotion still src/index.ts NajmiEp2 out/ep2-s4-supplies.png --frame=3600 --gl=swangle
-          npx remotion still src/index.ts NajmiEp2 out/ep2-s5-meadow.png --frame=4500 --gl=swangle
           npx remotion still src/index.ts NajmiEp2 out/ep2-s6-forest.png --frame=5500 --gl=swangle
-          npx remotion still src/index.ts NajmiEp2 out/ep2-s6-forest-close.png --frame=5900 --gl=swangle
+          npx remotion still src/index.ts NajmiEp2 out/ep2-s6-forest-last.png --frame=5699 --gl=swangle
 
       - name: Upload Episode 02 preview stills
         if: always()

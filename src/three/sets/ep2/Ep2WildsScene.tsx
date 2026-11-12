@@ -63,7 +63,7 @@ const forestKeys: CameraKey[] = [
   {f: 80, position: [4.4, 1.9, 6.2], target: [0.2, 1.7, -4.5], fov: 30},
   {f: 160, position: [3.2, 1.5, 5.4], target: [0.4, 2.0, -5.4], fov: 26},
   {f: 260, position: [3.9, 2.2, 6.2], target: [-1.0, 2.0, -6.4], fov: 28},
-  {f: 400, position: [3.3, 2.0, 5.0], target: [1.2, 1.8, -4.0], fov: 34},
+  {f: 400, position: [3.8, 1.35, 5.9], target: [1.2, 1.45, -4.0], fov: 36},
   {f: 520, position: [5.6, 3.0, 7.1], target: [0.0, 2.0, -7.0], fov: 32},
   {f: 599, position: [2.5, 1.2, 4.2], target: [3.5, 2.6, -8.7], fov: 18},
 ];
