@@ -340,7 +340,7 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       <group position={[0, 3.4, -2.3]}>
         <Cylinder radiusTop={0.02} radiusBottom={0.02} height={0.45} segments={4} position={[0, -0.22, 0]} color="#2c2033" />
         <Cylinder radiusTop={0.4} radiusBottom={0.58} height={0.3} segments={10} position={[0, -0.52, 0]} color="#3a2a40" />
-        <GlowSprite map={glow} scale={2.2} position={[0, -0.66, 0]} color="#ffcf94" opacity={0.28} />
+        <GlowSprite map={glow} scale={1.5} position={[0, -0.66, 0]} color="#ffcf94" opacity={0.22} />
         <pointLight position={[0, -0.7, 0]} color="#ffcf9a" intensity={30} distance={15} decay={2} />
       </group>
       {/* cool bounce so the warm room does not turn monochrome */}

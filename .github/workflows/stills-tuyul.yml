@@ -29,7 +29,7 @@ jobs:
       - name: Render stills
         run: |
           mkdir -p out/stills "$TMP"
-          for f in 120 450 640 950 1300 1800 2150 2450 3000 3200 3420 3560 3700 3980 4250 4700; do
+          for f in 120 950 1800 3420 3700 4250; do
             npx remotion still src/index.ts TuyulShort "out/stills/f${f}.png" \
               --frame=$f --gl=swangle --overwrite
           done

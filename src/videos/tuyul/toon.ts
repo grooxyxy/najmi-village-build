@@ -226,9 +226,9 @@ export function drawKid(
     const sx = bodyX + side * (tw - 18);
     const sy = shoulderY + 32;
     const lift = base * side * p.face;
-    const [sx2, sy2] = stick(ctx, sx, sy, lift, 52, 38, col.shirt);
-    const [ex, ey] = stick(ctx, sx2, sy2, lift, 74, 18, col.skin);
-    const [hx, hy] = stick(ctx, ex, ey, lift - elbow * side * 0.55, 96, 17, col.skin);
+    stick(ctx, sx, sy, lift, 42, 40, col.shirt);
+    const [ex, ey] = stick(ctx, sx, sy, lift, 122, 18, col.skin);
+    const [hx, hy] = stick(ctx, ex, ey, lift - elbow * side * 0.55, 100, 17, col.skin);
     ball(ctx, hx, hy, 17, col.skin, 5);
   }
 
@@ -468,36 +468,35 @@ export function drawTuyulBlur(ctx: CanvasRenderingContext2D, t: number) {
   ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
   const cx = 256;
   const bob = Math.sin(t * 2.2) * 5;
-  const sway = Math.sin(t * 1.3) * 8;
-  aura(ctx, t, cx, 620, 0.85);
+  const sway = Math.sin(t * 1.3) * 6;
+  aura(ctx, t, cx, 640, 0.8);
   ctx.save();
-  ctx.globalAlpha = 0.88;
-  // crouched body, shoulders high
+  ctx.globalAlpha = 0.9;
+  // head sunk into hunched shoulders
+  ink(ctx, () => ctx.ellipse(cx + sway, 640 + bob, 122, 116, 0, 0, Math.PI * 2), TUYUL_SKIN, 7);
   ink(
     ctx,
     () => {
-      ctx.moveTo(cx - 84 + sway, 900);
-      ctx.quadraticCurveTo(cx - 128 + sway, 762 + bob, cx - 74 + sway, 718 + bob);
-      ctx.quadraticCurveTo(cx + sway, 684 + bob, cx + 74 + sway, 718 + bob);
-      ctx.quadraticCurveTo(cx + 128 + sway, 762 + bob, cx + 84 + sway, 900);
-      ctx.quadraticCurveTo(cx + sway, 936, cx - 84 + sway, 900);
+      ctx.moveTo(cx - 76 + sway, 902);
+      ctx.quadraticCurveTo(cx - 118 + sway, 780 + bob, cx - 66 + sway, 742 + bob);
+      ctx.quadraticCurveTo(cx + sway, 710 + bob, cx + 66 + sway, 742 + bob);
+      ctx.quadraticCurveTo(cx + 118 + sway, 780 + bob, cx + 76 + sway, 902);
+      ctx.quadraticCurveTo(cx + sway, 940, cx - 76 + sway, 902);
       ctx.closePath();
     },
     TUYUL_SKIN,
-    7,
+    6,
   );
-  // head sunk into the shoulders
-  ink(ctx, () => ctx.ellipse(cx + sway, 606 + bob, 124, 118, 0, 0, Math.PI * 2), TUYUL_SKIN, 7);
-  // long knuckle-walker arms
+  // arms tucked against the body, hands near the knees
   for (const side of [-1, 1] as const) {
-    const [ex, ey] = stick(ctx, cx + side * 82 + sway, 748 + bob, side * 38, 96, 22, TUYUL_SKIN);
-    const [hx, hy] = stick(ctx, ex, ey, side * 4, 108, 18, TUYUL_SKIN);
-    ball(ctx, hx, hy, 15, TUYUL_SKIN, 5);
+    const [ex, ey] = stick(ctx, cx + side * 66 + sway, 772 + bob, side * 18, 74, 20, TUYUL_SKIN);
+    const [hx, hy] = stick(ctx, ex, ey, side * 2, 66, 17, TUYUL_SKIN);
+    ball(ctx, hx, hy, 14, TUYUL_SKIN, 4);
   }
-  // bent legs
+  // short bent legs
   for (const side of [-1, 1] as const) {
-    const [kx, ky] = stick(ctx, cx + side * 54 + sway, 884, side * 34, 66, 22, TUYUL_SKIN);
-    stick(ctx, kx, ky, side * 4, 88, 18, TUYUL_SKIN);
+    const [kx, ky] = stick(ctx, cx + side * 46 + sway, 890, side * 24, 54, 21, TUYUL_SKIN);
+    stick(ctx, kx, ky, side * 2, 66, 17, TUYUL_SKIN);
   }
   ctx.restore();
 }
@@ -646,12 +645,12 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
   const [hxR, hyR] = stick(ctx, exR, eyR, 205, 100, 17, TUYUL_SKIN);
   // stolen money clutched at chest height, fist on top of it
   ctx.save();
-  ctx.translate(hxR + 14, hyR - 8);
+  ctx.translate(hxR + 26, hyR - 4);
   ctx.rotate(-0.2);
-  ink(ctx, () => rect(ctx, -34, -30, 78, 58, 8), '#e7d3a0', 5);
-  ink(ctx, () => rect(ctx, -24, -20, 58, 38, 4), '#f6e7bd', 3);
+  ink(ctx, () => rect(ctx, -46, -36, 96, 70, 10), '#e7d3a0', 5);
+  ink(ctx, () => rect(ctx, -34, -24, 72, 46, 5), '#f6e7bd', 3);
   ctx.beginPath();
-  ctx.arc(6, 0, 11, 0, Math.PI * 2);
+  ctx.arc(2, -1, 14, 0, Math.PI * 2);
   ctx.strokeStyle = '#b08c4e';
   ctx.lineWidth = 4;
   ctx.stroke();
