@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import * as THREE from 'three';
-import {Box, Cylinder, GlowSprite, Ico, Plane, type Vec3} from '../../three/lib/primitives';
+import {Box, Cylinder, GlowSprite, Ico, Plane, UnlitPlane, type Vec3} from '../../three/lib/primitives';
 import {glowTexture, warmGlowTexture} from '../../three/lib/textures';
 import type {SceneName} from './story';
 
@@ -80,10 +80,10 @@ const Lamp: React.FC<{position: Vec3; t: number}> = ({position, t}) => {
         position={[0.8, 4.18, 0]}
         color="#ffe0ad"
         emissive="#ffb163"
-        emissiveIntensity={3.2}
+        emissiveIntensity={2.2}
       />
       <GlowSprite map={glow} scale={5.2} position={[0.8, 4.1, 0]} color="#ffbe7a" opacity={0.34 * flicker} />
-      <pointLight position={[0.8, 4.0, 0]} color="#ffb877" intensity={22 * flicker} distance={16} decay={2} />
+      <pointLight position={[0.8, 4.0, 0]} color="#ffb877" intensity={16 * flicker} distance={16} decay={2} />
     </group>
   );
 };
@@ -93,7 +93,7 @@ const School: React.FC = () => {
   return (
     <group position={[0, 0, -22]}>
       {/* body */}
-      <Box size={[24, 7, 8]} position={[0, 3.5, 0]} color="#8a5c6b" />
+      <Box size={[24, 7, 8]} position={[0, 3.5, 0]} color="#7d5a6e" />
       {/* roof + eaves */}
       <Box size={[25.8, 0.55, 8.8]} position={[0, 7.25, 0]} color="#463049" />
       <Box size={[24.4, 1.0, 8.4]} position={[0, 7.95, -0.2]} color="#543956" />
@@ -113,7 +113,7 @@ const School: React.FC = () => {
             position={[0, 3.55, 0]}
             color="#ffe3b0"
             emissive="#ffbd72"
-            emissiveIntensity={2.4}
+            emissiveIntensity={1.35}
           />
           <Box size={[3.15, 0.16, 0.22]} position={[0, 4.66, 0.03]} color="#6a4557" />
           <Box size={[3.15, 0.16, 0.22]} position={[0, 2.44, 0.03]} color="#6a4557" />
@@ -126,11 +126,11 @@ const School: React.FC = () => {
 
       {/* glowing doorway */}
       <group position={[0, 0, 4.05]}>
-        <Box size={[3.5, 4.3, 0.16]} position={[0, 2.15, -0.06]} color="#ffd9a2" emissive="#ffa75e" emissiveIntensity={1.9} />
+        <Box size={[3.5, 4.3, 0.16]} position={[0, 2.15, -0.06]} color="#ffd9a2" emissive="#ffa75e" emissiveIntensity={1.25} />
         <Box size={[0.24, 4.3, 0.3]} position={[-1.75, 2.15, 0.06]} color="#543956" />
         <Box size={[0.24, 4.3, 0.3]} position={[1.75, 2.15, 0.06]} color="#543956" />
         <Box size={[3.9, 0.28, 0.42]} position={[0, 4.4, 0.1]} color="#543956" />
-        <Box size={[0.16, 4.2, 0.22]} position={[0, 2.15, 0.1]} color="#8a5c6b" />
+        <Box size={[0.16, 4.2, 0.22]} position={[0, 2.15, 0.1]} color="#7d5a6e" />
         <GlowSprite map={glow} scale={7} position={[0, 2.4, 0.9]} color="#ffb877" opacity={0.3} />
       </group>
 
@@ -141,7 +141,7 @@ const School: React.FC = () => {
         position={[0, 6.2, 4.16]}
         color="#ffe7bd"
         emissive="#ffc27a"
-        emissiveIntensity={1.4}
+        emissiveIntensity={0.75}
       />
 
       {/* steps */}
@@ -173,7 +173,7 @@ const Fence: React.FC = () => {
             position={[x, 2.86, 0]}
             color="#ffe4b2"
             emissive="#ffb066"
-            emissiveIntensity={1.8}
+            emissiveIntensity={1.2}
           />
         </group>
       ))}
@@ -192,14 +192,13 @@ const Fence: React.FC = () => {
 const Yard: React.FC<{t: number}> = ({t}) => (
   <group>
     <Plane width={150} height={150} position={[0, 0, -12]} rotation={[-Math.PI / 2, 0, 0]} color="#4a3d5c" />
-    {/* warm concrete walk from the gate to the school */}
-    <Plane width={6.2} height={20} position={[0, 0.012, -4]} rotation={[-Math.PI / 2, 0, 0]} color="#634d66" />
-    <Plane width={10} height={3.6} position={[0, 0.014, -15.6]} rotation={[-Math.PI / 2, 0, 0]} color="#6b5268" />
+    {/* grass edges (kept clear of the court so no coplanar fight) */}
+    <Plane width={10} height={30} position={[-13.9, 0.004, -10]} rotation={[-Math.PI / 2, 0, 0]} color="#40513f" />
+    <Plane width={10} height={30} position={[13.9, 0.004, -10]} rotation={[-Math.PI / 2, 0, 0]} color="#3d4d3c" />
     {/* front court, where the kids play */}
-    <Plane width={26} height={17} position={[0, 0.01, 2.5]} rotation={[-Math.PI / 2, 0, 0]} color="#52435f" />
-    {/* grass edges */}
-    <Plane width={9} height={26} position={[-13, 0.008, -10]} rotation={[-Math.PI / 2, 0, 0]} color="#40513f" />
-    <Plane width={9} height={26} position={[13, 0.008, -10]} rotation={[-Math.PI / 2, 0, 0]} color="#3d4d3c" />
+    <Plane width={17} height={17} position={[0, 0.012, 2.5]} rotation={[-Math.PI / 2, 0, 0]} color="#52435f" />
+    {/* walk from the gate to the school, starts where the court ends */}
+    <Plane width={6.2} height={12} position={[0, 0.024, -12]} rotation={[-Math.PI / 2, 0, 0]} color="#634d66" />
 
     <School />
     <Fence />
@@ -209,7 +208,7 @@ const Yard: React.FC<{t: number}> = ({t}) => (
     <Tree position={[10.5, 0, -13]} scale={1.2} hue="#39573e" />
     <Tree position={[18, 0, -18]} scale={1.55} hue="#2b4232" />
     <Tree position={[12.5, 0, -4.2]} scale={0.95} hue="#3a5636" />
-    <Tree position={[-12.5, 0, -2.5]} scale={0.9} hue="#31503a" />
+    <Tree position={[-16.5, 0, -7]} scale={0.85} hue="#31503a" />
     {/* bush the creature hides behind */}
     <Ico radius={1.15} detail={0} position={[-5.4, 0.9, -5.4]} color="#2f4636" />
     <Ico radius={0.8} detail={0} position={[-4.5, 0.65, -5.9]} color="#38503c" />
@@ -298,25 +297,26 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       <ClassroomWindow x={0} />
       <ClassroomWindow x={3.4} />
 
-      {/* dusk backdrop behind the windows */}
-      <Plane width={13} height={3.4} position={[0, 1.7, -5.75]} color="#ffb877" />
-      <Plane width={13} height={1.1} position={[0, 0.55, -5.73]} color="#3e2a44" />
+      {/* dusk backdrop behind the windows (unlit so it glows) */}
+      <UnlitPlane width={13} height={3.4} position={[0, 1.7, -5.75]} color="#ffb877" opacity={1} />
+      <UnlitPlane width={13} height={1.1} position={[0, 0.55, -5.73]} color="#3e2a44" opacity={1} />
 
       {/* side walls + ceiling */}
       <Box size={[0.24, 3.5, 10]} position={[-6.1, 1.75, 0]} color="#8a5f60" />
       <Box size={[0.24, 3.5, 10]} position={[6.1, 1.75, 0]} color="#7c5658" />
-      <Box size={[12.4, 0.22, 10]} position={[0, 3.5, 0]} color="#4e3648" />
+      <Box size={[12.4, 0.22, 10]} position={[0, 3.5, 0]} color="#634a58" />
 
       {/* blackboard on the left wall */}
       <Box size={[0.12, 1.9, 4.8]} position={[-5.94, 1.85, -1.4]} color="#2d4a3e" />
       <Box size={[0.2, 0.12, 5.0]} position={[-5.9, 0.86, -1.4]} color="#8a6038" />
 
       {/* desks: two rows, three columns, aisle in the middle */}
-      {[-3.7, 0, 3.7].map((x) =>
-        [-1.5, -3.1].map((z) => <Desk key={`${x}-${z}`} position={[x, 0, z]} rotation={x === 0 ? 0.02 : -0.03} />),
+      {[-3.7, 3.7].map((x) =>
+        [-2.6, -4.0].map((z) => <Desk key={`${x}-${z}`} position={[x, 0, z]} rotation={x === 0 ? 0.02 : -0.03} />),
       )}
+      <Desk position={[0, 0, -4.15]} rotation={0.02} />
       {/* teacher desk off to the left, clear of the camera line */}
-      <Desk position={[-4.5, 0, 1.1]} rotation={0.5} color="#7a5532" />
+      <Desk position={[-4.6, 0, 1.6]} rotation={0.6} color="#7a5532" />
 
       {/* door on the right wall */}
       <group position={[6.08, 0, 3.4]}>
@@ -336,29 +336,13 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       <group position={[0, 3.4, -0.3]}>
         <Cylinder radiusTop={0.02} radiusBottom={0.02} height={0.45} segments={4} position={[0, -0.22, 0]} color="#2c2033" />
         <Cylinder radiusTop={0.4} radiusBottom={0.58} height={0.3} segments={10} position={[0, -0.52, 0]} color="#3a2a40" />
-        <GlowSprite map={glow} scale={3.2} position={[0, -0.66, 0]} color="#ffcf94" opacity={0.4} />
-        <pointLight position={[0, -0.7, 0]} color="#ffcf9a" intensity={26} distance={14} decay={2} />
+        <GlowSprite map={glow} scale={2.2} position={[0, -0.66, 0]} color="#ffcf94" opacity={0.28} />
+        <pointLight position={[0, -0.7, 0]} color="#ffcf9a" intensity={30} distance={15} decay={2} />
       </group>
       {/* cool fill from the windows */}
       <pointLight position={[0, 2.1, -4.2]} color="#ff9a5c" intensity={11} distance={11} decay={2} />
       <pointLight position={[0, 2.3, 3.6]} color="#8f7ad0" intensity={5} distance={9} decay={2} />
 
-      {/* chalk dust in the lamp light */}
-      {Array.from({length: 14}).map((_, i) => {
-        const px = -4 + ((i * 2.3) % 8.4);
-        const py = 0.8 + ((i * 0.47) % 2.2) + Math.sin(t * 0.35 + i) * 0.06;
-        const pz = -2.6 + ((i * 1.5) % 5.2);
-        return (
-          <Box
-            key={`d${i}`}
-            size={[0.028, 0.028, 0.028]}
-            position={[px, py, pz]}
-            color="#ffe6c4"
-            emissive="#ffcb8a"
-            emissiveIntensity={0.9}
-          />
-        );
-      })}
     </group>
   );
 };

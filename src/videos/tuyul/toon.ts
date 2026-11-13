@@ -170,9 +170,9 @@ export function drawKid(
     const swing = walking ? Math.sin(phase + (side < 0 ? 0 : Math.PI)) * 34 : side * 2;
     const knee = walking ? 16 + 30 * Math.max(0, Math.sin(phase + (side < 0 ? 1.4 : 1.4 + Math.PI))) : 8;
     const hipX = bodyX + side * 52;
-    const [kx, ky] = stick(ctx, hipX, hipY, swing, 152, 22, col.skin);
+    const [kx, ky] = stick(ctx, hipX, hipY, swing, 132, 23, col.shorts);
     const lower = swing - knee;
-    const [ax, ay] = stick(ctx, kx, ky, lower, 148, 20, col.skin);
+    const [ax, ay] = stick(ctx, kx, ky, lower, 168, 20, col.skin);
     // sneaker, kept chunky so the stick legs still read as a kid
     ctx.save();
     ctx.translate(ax + side * 12, ay + 16);
@@ -186,8 +186,14 @@ export function drawKid(
     rect(ctx, -18, -14, 46, 16, 8);
     ctx.fillStyle = '#3b3350';
     ctx.fill();
+    rect(ctx, -32, 8, 70, 12, 6);
+    ctx.fillStyle = '#f4eee2';
+    ctx.fill();
     ctx.restore();
   }
+
+  // ---- shorts
+  ink(ctx, () => rect(ctx, bodyX - 78, hipY - 24, 156, 84, 22), col.shorts, 6);
 
   // ---- torso: big bean
   const tw = 132;
@@ -215,22 +221,14 @@ export function drawKid(
   for (const side of [-1, 1] as const) {
     const base = side < 0 ? p.armL : p.armR;
     const elbow = side < 0 ? p.elbowL : p.elbowR;
-    const sx = bodyX + side * (tw - 4);
-    const sy = shoulderY + 30;
+    const sx = bodyX + side * (tw - 22);
+    const sy = shoulderY + 34;
     const lift = -base * side * p.face;
-    // sleeve
-    ink(
-      ctx,
-      () => {
-        ctx.arc(sx, sy, 34, 0, Math.PI * 2);
-      },
-      col.shirt,
-      6,
-    );
-    const [ex, ey] = stick(ctx, sx, sy, lift, 118, 18, col.skin);
-    const [hx, hy] = stick(ctx, ex, ey, lift + elbow * side * p.face, 112, 17, col.skin);
+    const [sx2, sy2] = stick(ctx, sx, sy, lift, 52, 38, col.shirt);
+    const [ex, ey] = stick(ctx, sx2, sy2, lift, 74, 18, col.skin);
+    const [hx, hy] = stick(ctx, ex, ey, lift + elbow * side * p.face, 96, 17, col.skin);
     ball(ctx, hx, hy, 17, col.skin, 5);
-    ball(ctx, ex, ey, 13, col.skin, 5);
+    ball(ctx, ex, ey, 12, col.skin, 5);
   }
 
   // ---- neck
@@ -404,18 +402,20 @@ export function drawAdult(ctx: CanvasRenderingContext2D, t: number, wallet = 0, 
     ball(ctx, hx, hy, 17, '#e6b184', 5);
   }
 
+  // scarf
+  ink(ctx, () => rect(ctx, cx - 78, shoulderY - 18, 156, 44, 18), '#8a5a52', 6);
   // head, back view
-  ink(ctx, () => ctx.rect(cx - 28, headCY + 96, 56, 40), '#d9a374', 5);
-  ink(ctx, () => ctx.ellipse(cx, headCY, 110, 118, 0, 0, Math.PI * 2), '#343049', 7);
+  ink(ctx, () => ctx.rect(cx - 30, headCY + 104, 60, 48), '#d9a374', 5);
+  ink(ctx, () => ctx.ellipse(cx, headCY, 130, 136, 0, 0, Math.PI * 2), '#343049', 7);
   ink(
     ctx,
     () => {
-      ctx.moveTo(cx - 108, headCY + 4);
-      ctx.quadraticCurveTo(cx - 96, headCY - 128, cx, headCY - 130);
-      ctx.quadraticCurveTo(cx + 96, headCY - 128, cx + 108, headCY + 4);
-      ctx.lineTo(cx + 74, headCY - 46);
-      ctx.lineTo(cx, headCY - 70);
-      ctx.lineTo(cx - 74, headCY - 46);
+      ctx.moveTo(cx - 128, headCY + 8);
+      ctx.quadraticCurveTo(cx - 120, headCY - 148, cx, headCY - 150);
+      ctx.quadraticCurveTo(cx + 120, headCY - 148, cx + 128, headCY + 8);
+      ctx.lineTo(cx + 84, headCY - 52);
+      ctx.lineTo(cx, headCY - 78);
+      ctx.lineTo(cx - 84, headCY - 52);
       ctx.closePath();
     },
     '#1d1830',
@@ -462,36 +462,40 @@ function aura(ctx: CanvasRenderingContext2D, t: number, cx: number, cy: number, 
 export function drawTuyulBlur(ctx: CanvasRenderingContext2D, t: number) {
   ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
   const cx = 256;
-  const bob = Math.sin(t * 2.2) * 6;
-  aura(ctx, t, cx, 520 + bob, 1);
+  const bob = Math.sin(t * 2.2) * 5;
+  aura(ctx, t, cx, 600, 0.9);
   ctx.save();
-  ctx.globalAlpha = 0.92;
-  // hazy body, back view only
+  ctx.filter = 'blur(7px)';
+  ctx.globalAlpha = 0.9;
+  // crouched body, shoulders up around the ears
   ctx.beginPath();
-  ctx.ellipse(cx, 780 + bob, 96, 150, 0, 0, Math.PI * 2);
-  ctx.fillStyle = TUYUL_SKIN;
-  ctx.filter = 'blur(6px)';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx, 560 + bob, 118, 124, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.filter = 'none';
-  // hunched shoulders
-  ctx.beginPath();
-  ctx.moveTo(cx - 118, 700 + bob);
-  ctx.quadraticCurveTo(cx - 150, 640 + bob, cx - 96, 622 + bob);
-  ctx.quadraticCurveTo(cx, 596 + bob, cx + 96, 622 + bob);
-  ctx.quadraticCurveTo(cx + 150, 640 + bob, cx + 118, 700 + bob);
+  ctx.moveTo(cx - 92, 900 + bob);
+  ctx.quadraticCurveTo(cx - 132, 742 + bob, cx - 78, 706 + bob);
+  ctx.quadraticCurveTo(cx, 672 + bob, cx + 78, 706 + bob);
+  ctx.quadraticCurveTo(cx + 132, 742 + bob, cx + 92, 900 + bob);
+  ctx.quadraticCurveTo(cx, 938 + bob, cx - 92, 900 + bob);
   ctx.closePath();
+  ctx.fillStyle = TUYUL_SKIN;
   ctx.fill();
-  // thin stick arms hanging
+  // big lowered head
+  ctx.beginPath();
+  ctx.ellipse(cx, 596 + bob, 132, 128, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // knees tucked under the body
+  ctx.beginPath();
+  ctx.ellipse(cx - 56, 916 + bob, 58, 30, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(cx + 56, 916 + bob, 58, 30, 0.15, 0, Math.PI * 2);
+  ctx.fill();
+  // thin forearms wrapped around the knees
   ctx.strokeStyle = TUYUL_SKIN;
-  ctx.lineWidth = 26;
+  ctx.lineWidth = 24;
   ctx.lineCap = 'round';
   for (const side of [-1, 1] as const) {
     ctx.beginPath();
-    ctx.moveTo(cx + side * 96, 664 + bob);
-    ctx.quadraticCurveTo(cx + side * 148, 760 + bob, cx + side * 132, 850 + bob);
+    ctx.moveTo(cx + side * 74, 760 + bob);
+    ctx.quadraticCurveTo(cx + side * 106, 864 + bob, cx + side * 30, 906 + bob);
     ctx.stroke();
   }
   ctx.restore();

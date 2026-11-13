@@ -18,7 +18,7 @@ export const ToonActor: React.FC<{
   opacity?: number;
   shadow?: boolean;
   shadowRadius?: number;
-}> = ({draw, position, height, flip = false, opacity = 1, shadow = true, shadowRadius = 0.55}) => {
+}> = ({draw, position, height, flip = false, opacity = 1, shadow = true, shadowRadius = 0.42}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const canvas = useMemo(() => {
@@ -54,7 +54,7 @@ export const ToonActor: React.FC<{
   const aspect = CANVAS_W / CANVAS_H;
   return (
     <group position={position}>
-      {shadow ? <BlobShadow position={[0, 0.012, 0]} radius={shadowRadius * height} opacity={0.42} /> : null}
+      {shadow ? <BlobShadow position={[0, 0.05, 0]} radius={shadowRadius * height} opacity={0.34} /> : null}
       <sprite scale={[height * aspect * (flip ? -1 : 1), height, 1]} position={[0, height / 2, 0]}>
         <spriteMaterial
           map={texture}
