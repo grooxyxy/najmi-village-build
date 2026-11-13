@@ -11,7 +11,6 @@ import {
   drawKid,
   drawSilhouette,
   drawTuyul,
-  drawTuyulBack,
   drawTuyulBlur,
   restPose,
   type Pose,
@@ -126,32 +125,29 @@ export const TuyulShort: React.FC = () => {
         );
       }
       case 'play': {
-        const runners = [
-          {speed: 2.4, off: 0.0, z: -1.2, shirt: '#fbeeda', shorts: '#34436e'},
-          {speed: 2.9, off: 2.6, z: -2.3, shirt: '#efdcc0', shorts: '#5a4776'},
-          {speed: 2.1, off: 4.9, z: 0.0, shirt: '#f6e7cd', shorts: '#3f577f'},
-          {speed: 2.6, off: 1.3, z: -1.9, shirt: '#e7d3b4', shorts: '#4a3f68'},
+        const players = [
+          {x: 0.35, z: -1.6, h: 1.79, shirt: '#fbeeda', shorts: '#34436e', ph: 0.0},
+          {x: -0.55, z: -2.35, h: 1.74, shirt: '#efdcc0', shorts: '#5a4776', ph: 1.9},
+          {x: 1.0, z: -2.75, h: 1.71, shirt: '#f6e7cd', shorts: '#3f577f', ph: 3.4},
         ];
         return (
           <>
-            {runners.map((r, i) => {
-              const cycle = ((r.off + local * r.speed) / 6.8) % 2;
-              const pingpong = cycle < 1 ? cycle : 2 - cycle;
-              const x = -3.4 + pingpong * 6.8;
+            {players.map((r, i) => {
+              const x = r.x + Math.sin(local * 1.15 + r.ph) * 0.26;
               return (
                 <Kid
                   key={i}
                   x={x}
                   z={r.z}
-                  height={1.76 + (i % 3) * 0.04}
+                  height={r.h}
                   shirt={r.shirt}
                   shorts={r.shorts}
                   pose={kidPose(t, {
-                    walk: local * 2.7 + i * 1.7,
-                    lean: 11,
-                    armL: 12 + Math.sin((local + i) * 9.4) * 24,
-                    armR: 12 - Math.sin((local + i) * 9.4) * 24,
-                    lookX: 0.5,
+                    walk: local * 1.7 + i * 1.7,
+                    lean: 5,
+                    armL: 14 + Math.sin((local + i) * 3.4) * 20,
+                    armR: 14 - Math.sin((local + i) * 3.4) * 20,
+                    lookX: i === 0 ? 0.3 : -0.4,
                     talk: i === 0 ? chatter(t, 5.4) : 0,
                   })}
                 />
@@ -164,12 +160,12 @@ export const TuyulShort: React.FC = () => {
         return (
           <>
             <ToonActor
-              position={[1.2, 0, -1.0]}
+              position={[1.0, 0, -1.2]}
               height={2.05}
               draw={(ctx, time) => drawAdult(ctx, time, 0.3 + 0.55 * smoother(clamp01((local - 4) / 5)))}
             />
             <ToonActor
-              position={[0.55, 0, -0.62]}
+              position={[0.35, 0, -0.75]}
               height={0.95}
               draw={(ctx, time) => drawTuyulBlur(ctx, time)}
             />
@@ -181,12 +177,12 @@ export const TuyulShort: React.FC = () => {
         return (
           <>
             <ToonActor
-              position={[1.5, 0, -2.0]}
+              position={[1.2, 0, -1.8]}
               height={2.05}
               draw={(ctx, time) => drawAdult(ctx, time, 0.3 + 0.7 * reach)}
             />
             <ToonActor
-              position={[0.9, 0, -1.6]}
+              position={[0.6, 0, -1.4]}
               height={0.95}
               draw={(ctx, time) => drawTuyulBlur(ctx, time)}
             />
@@ -199,8 +195,8 @@ export const TuyulShort: React.FC = () => {
         return (
           <>
             <Kid
-              x={mix(0.4, 1.7, run)}
-              z={mix(0.4, -1.8, run)}
+              x={mix(1.3, 2.0, run)}
+              z={mix(-0.2, -3.0, run)}
               pose={kidPose(t, {
                 lean: mix(-4, 13, run),
                 yaw: mix(0.35, 0.1, run),
@@ -213,7 +209,7 @@ export const TuyulShort: React.FC = () => {
               })}
             />
             <ToonActor
-              position={[mix(0.9, 2.6, smoother(clamp01((local - 1.5) / 2.2))), 0, mix(-0.7, -2.6, smoother(clamp01((local - 1.5) / 2.2)))]}
+              position={[mix(0.9, 2.6, smoother(clamp01((local - 1.5) / 2.2))), 0, mix(-1.4, -3.8, smoother(clamp01((local - 1.5) / 2.2)))]}
               height={0.95}
               draw={(ctx, time) => drawTuyulBlur(ctx, time)}
             />
@@ -251,8 +247,8 @@ export const TuyulShort: React.FC = () => {
         return (
           <>
             <Kid
-              x={mix(1.5, -0.8, p)}
-              z={mix(3.2, -1.8, p)}
+              x={mix(1.6, -0.9, p)}
+              z={mix(0.8, -3.4, p)}
               pose={kidPose(t, {
                 walk: local * 1.8,
                 lean: 8,
@@ -262,8 +258,8 @@ export const TuyulShort: React.FC = () => {
               })}
             />
             <ToonActor
-              position={[-2.6, 0, -5.5]}
-              height={0.95}
+              position={[0.9, 0, -4.4]}
+              height={1.0}
               opacity={pulse * 0.95}
               draw={(ctx, time) => drawTuyulBlur(ctx, time)}
             />
@@ -284,8 +280,8 @@ export const TuyulShort: React.FC = () => {
         return (
           <>
             <Kid
-              x={mix(3.6, 1.8, p)}
-              z={mix(3.0, 1.6, p)}
+              x={mix(2.2, 0.9, p)}
+              z={mix(3.6, 1.2, p)}
               pose={kidPose(t, {
                 walk: local * 1.8,
                 lean: 4,
@@ -296,9 +292,9 @@ export const TuyulShort: React.FC = () => {
               })}
             />
             <ToonActor
-              position={[0.2, 0, 0.4]}
+              position={[0.15, 0, 0.4]}
               height={1.1}
-              draw={(ctx, time) => drawTuyulBack(ctx, time)}
+              draw={(ctx, time) => drawTuyulBlur(ctx, time)}
             />
           </>
         );
@@ -315,8 +311,8 @@ export const TuyulShort: React.FC = () => {
               }
             />
             <Kid
-              x={1.9}
-              z={1.9}
+              x={1.6}
+              z={1.0}
               pose={kidPose(t, {
                 lean: -4,
                 yaw: 0.35,
@@ -338,8 +334,8 @@ export const TuyulShort: React.FC = () => {
               draw={(ctx, time) => drawTuyul(ctx, time, restPose({crouch: 0.32, yaw: 0.05}), 1)}
             />
             <Kid
-              x={2.2}
-              z={1.6}
+              x={1.3}
+              z={0.6}
               pose={kidPose(t, {
                 lean: -2,
                 yaw: 0.32,
@@ -362,8 +358,8 @@ export const TuyulShort: React.FC = () => {
               draw={(ctx, time) => drawTuyul(ctx, time, restPose({crouch: 0.28, yaw: 0.1 + turn * 0.85}), 0.7)}
             />
             <Kid
-              x={2.2}
-              z={1.8}
+              x={1.05}
+              z={0.8}
               pose={kidPose(t, {
                 lean: 1,
                 yaw: 0.4,
@@ -374,7 +370,7 @@ export const TuyulShort: React.FC = () => {
               })}
             />
             <ToonActor
-              position={[0.1, 0, -5.35]}
+              position={[0.1, 0.72, -5.35]}
               height={2.0}
               shadow={false}
               draw={(ctx, time) => drawSilhouette(ctx, time)}
@@ -392,8 +388,8 @@ export const TuyulShort: React.FC = () => {
               draw={(ctx, time) => drawTuyul(ctx, time, restPose({crouch: 0.3, yaw: 0.9}), 0.6)}
             />
             <Kid
-              x={2.2}
-              z={1.7}
+              x={1.15}
+              z={0.5}
               opacity={1 - p * 0.2}
               pose={kidPose(t, {
                 lean: 0,

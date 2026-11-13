@@ -269,7 +269,7 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
   return (
     <group position={[120, 0, 0]}>
       {/* floor */}
-      <Plane width={12} height={10} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} color="#6c4a36" />
+      <Plane width={12} height={15} position={[0, 0, 1.5]} rotation={[-Math.PI / 2, 0, 0]} color="#6c4a36" />
       {/* wood planks */}
       {[-4.2, -2.8, -1.4, 0, 1.4, 2.8, 4.2].map((z, i) => (
         <Plane
@@ -282,16 +282,21 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
         />
       ))}
 
+      {/* skirting */}
+      <Box size={[12, 0.22, 0.12]} position={[0, 0.11, -4.96]} color="#4a3328" />
+      <Box size={[0.12, 0.22, 15]} position={[-5.96, 0.11, 1.5]} color="#4a3328" />
+      <Box size={[0.12, 0.22, 15]} position={[5.96, 0.11, 1.5]} color="#4a3328" />
+
       {/* back wall, built around the window openings */}
-      <Box size={[12, 0.95, 0.24]} position={[0, 0.475, -5.1]} color="#8a5f60" />
-      <Box size={[12, 0.85, 0.24]} position={[0, 3.075, -5.1]} color="#8a5f60" />
+      <Box size={[12, 0.95, 0.24]} position={[0, 0.475, -5.1]} color="#7d565c" />
+      <Box size={[12, 0.85, 0.24]} position={[0, 3.075, -5.1]} color="#7d565c" />
       {[
         {x: -5.3, w: 1.4},
         {x: -1.7, w: 1.0},
         {x: 1.7, w: 1.0},
         {x: 5.3, w: 1.4},
       ].map((p, i) => (
-        <Box key={i} size={[p.w, 1.7, 0.24]} position={[p.x, 1.8, -5.1]} color="#8a5f60" />
+        <Box key={i} size={[p.w, 1.7, 0.24]} position={[p.x, 1.8, -5.1]} color="#7d565c" />
       ))}
       <ClassroomWindow x={-3.4} />
       <ClassroomWindow x={0} />
@@ -302,9 +307,9 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       <UnlitPlane width={13} height={1.1} position={[0, 0.55, -5.73]} color="#3e2a44" opacity={1} />
 
       {/* side walls + ceiling */}
-      <Box size={[0.24, 3.5, 10]} position={[-6.1, 1.75, 0]} color="#8a5f60" />
-      <Box size={[0.24, 3.5, 10]} position={[6.1, 1.75, 0]} color="#7c5658" />
-      <Box size={[12.4, 0.22, 10]} position={[0, 3.5, 0]} color="#634a58" />
+      <Box size={[0.24, 3.5, 15]} position={[-6.1, 1.75, 1.5]} color="#7d565c" />
+      <Box size={[0.24, 3.5, 15]} position={[6.1, 1.75, 1.5]} color="#7c5658" />
+      <Box size={[12.4, 0.22, 15]} position={[0, 3.5, 1.5]} color="#5b4452" />
 
       {/* blackboard on the left wall */}
       <Box size={[0.12, 1.9, 4.8]} position={[-5.94, 1.85, -1.4]} color="#2d4a3e" />
@@ -314,7 +319,6 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       {[-3.7, 3.7].map((x) =>
         [-2.6, -4.0].map((z) => <Desk key={`${x}-${z}`} position={[x, 0, z]} rotation={x === 0 ? 0.02 : -0.03} />),
       )}
-      <Desk position={[0, 0, -4.15]} rotation={0.02} />
       {/* teacher desk off to the left, clear of the camera line */}
       <Desk position={[-4.6, 0, 1.6]} rotation={0.6} color="#7a5532" />
 
@@ -339,8 +343,11 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
         <GlowSprite map={glow} scale={2.2} position={[0, -0.66, 0]} color="#ffcf94" opacity={0.28} />
         <pointLight position={[0, -0.7, 0]} color="#ffcf9a" intensity={30} distance={15} decay={2} />
       </group>
+      {/* cool bounce so the warm room does not turn monochrome */}
+      <pointLight position={[-4.2, 2.4, 3.6]} color="#7f8fe0" intensity={9} distance={12} decay={2} />
+      <pointLight position={[4.4, 1.8, -1.2]} color="#8f7ad0" intensity={6} distance={9} decay={2} />
       {/* cool fill from the windows */}
-      <pointLight position={[0, 2.1, -4.2]} color="#ff9a5c" intensity={11} distance={11} decay={2} />
+      <pointLight position={[0, 2.1, -4.2]} color="#ffa870" intensity={9} distance={11} decay={2} />
       <pointLight position={[0, 2.3, 3.6]} color="#8f7ad0" intensity={5} distance={9} decay={2} />
 
     </group>

@@ -105,8 +105,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 3,
     sentenceTo: 4,
     cam: [
-      {at: 0, pos: [2.2, 1.6, 4.8], target: [-0.3, 1.1, -2.0], fov: 44},
-      {at: 1, pos: [1.4, 1.5, 4.0], target: [-0.6, 1.05, -2.0], fov: 42},
+      {at: 0, pos: [1.6, 1.58, 5.0], target: [0.0, 1.05, -1.8], fov: 44},
+      {at: 1, pos: [1.1, 1.5, 4.4], target: [0.05, 1.0, -1.9], fov: 42},
     ],
   },
   {
@@ -115,8 +115,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 5,
     sentenceTo: 5,
     cam: [
-      {at: 0, pos: [1.9, 1.45, 3.6], target: [0.7, 0.95, -1.0], fov: 36},
-      {at: 1, pos: [1.5, 1.4, 3.1], target: [0.7, 0.9, -1.05], fov: 34},
+      {at: 0, pos: [2.4, 1.45, 4.0], target: [0.8, 0.9, -1.0], fov: 36},
+      {at: 1, pos: [2.1, 1.4, 3.5], target: [0.8, 0.85, -1.05], fov: 34},
     ],
   },
   {
@@ -125,8 +125,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 6,
     sentenceTo: 7,
     cam: [
-      {at: 0, pos: [2.3, 1.35, 3.4], target: [1.1, 0.9, -1.5], fov: 34},
-      {at: 1, pos: [2.0, 1.3, 2.9], target: [1.15, 0.85, -1.6], fov: 32},
+      {at: 0, pos: [2.3, 1.35, 3.6], target: [1.0, 0.9, -1.4], fov: 34},
+      {at: 1, pos: [2.0, 1.3, 3.1], target: [1.05, 0.85, -1.5], fov: 32},
     ],
   },
   {
@@ -135,9 +135,9 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 8,
     sentenceTo: 9,
     cam: [
-      {at: 0, pos: [0.9, 1.35, 2.6], target: [1.3, 1.15, -1.0], fov: 36},
-      {at: 0.45, pos: [0.2, 1.7, 5.2], target: [1.2, 1.2, -2.6], fov: 44},
-      {at: 1, pos: [-0.8, 1.85, 6.4], target: [0.9, 1.3, -3.4], fov: 46},
+      {at: 0, pos: [1.4, 1.35, 3.4], target: [1.15, 1.05, -1.0], fov: 38},
+      {at: 0.45, pos: [0.8, 1.6, 4.6], target: [1.2, 1.1, -2.0], fov: 42},
+      {at: 1, pos: [0.2, 1.75, 5.6], target: [1.2, 1.15, -2.8], fov: 44},
     ],
   },
   {
@@ -156,9 +156,9 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 12,
     sentenceTo: 14,
     cam: [
-      {at: 0, pos: [2.6, 2.0, 7.4], target: [0.2, 1.5, -9], fov: 40},
-      {at: 0.55, pos: [2.1, 1.9, 6.4], target: [-0.2, 1.4, -8.5], fov: 39},
-      {at: 1, pos: [1.6, 1.8, 5.6], target: [-0.6, 1.35, -8], fov: 38},
+      {at: 0, pos: [1.8, 2.2, 8.0], target: [0.0, 1.4, -9], fov: 42},
+      {at: 0.6, pos: [1.6, 2.1, 7.4], target: [-0.2, 1.35, -8.5], fov: 41},
+      {at: 1, pos: [1.4, 2.0, 6.8], target: [-0.4, 1.3, -8], fov: 40},
     ],
   },
   {
@@ -167,8 +167,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 15,
     sentenceTo: 16,
     cam: [
-      {at: 0, pos: [5.0, 1.7, 5.6], target: [0.2, 1.1, 0.2], fov: 42},
-      {at: 1, pos: [3.2, 1.55, 4.6], target: [0.2, 1.05, 0.3], fov: 38},
+      {at: 0, pos: [1.8, 1.72, 6.6], target: [0.3, 1.2, 0.4], fov: 44},
+      {at: 1, pos: [1.3, 1.6, 5.4], target: [0.35, 1.1, 0.4], fov: 40},
     ],
   },
   {
@@ -177,9 +177,9 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 17,
     sentenceTo: 18,
     cam: [
-      {at: 0, pos: [0.4, 1.15, 2.9], target: [0.2, 0.95, 0.4], fov: 30},
-      {at: 0.5, pos: [0.4, 1.16, 2.95], target: [0.2, 0.95, 0.4], fov: 30},
-      {at: 1, pos: [1.6, 1.35, 5.0], target: [0.4, 1.0, 0.4], fov: 40},
+      {at: 0, pos: [0.45, 1.02, 3.0], target: [0.2, 0.6, 0.4], fov: 32},
+      {at: 0.28, pos: [0.45, 1.03, 3.05], target: [0.2, 0.6, 0.4], fov: 32},
+      {at: 1, pos: [1.5, 1.4, 5.4], target: [0.8, 1.0, 0.4], fov: 40},
     ],
   },
   {
@@ -188,8 +188,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 19,
     sentenceTo: 20,
     cam: [
-      {at: 0, pos: [1.4, 1.35, 4.6], target: [0.4, 1.0, 0.3], fov: 38},
-      {at: 1, pos: [1.6, 1.4, 4.85], target: [0.55, 1.0, 0.35], fov: 39},
+      {at: 0, pos: [1.5, 1.4, 4.8], target: [0.7, 1.0, 0.4], fov: 38},
+      {at: 1, pos: [1.7, 1.45, 5.0], target: [0.8, 1.0, 0.45], fov: 39},
     ],
   },
   {
@@ -198,8 +198,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 21,
     sentenceTo: 22,
     cam: [
-      {at: 0, pos: [0.9, 1.45, 4.2], target: [0.2, 1.3, -2.4], fov: 36},
-      {at: 1, pos: [0.6, 1.45, 3.7], target: [0.2, 1.35, -3.2], fov: 34},
+      {at: 0, pos: [1.0, 1.55, 4.8], target: [0.1, 1.45, -3.0], fov: 40},
+      {at: 1, pos: [0.75, 1.55, 4.2], target: [0.1, 1.45, -3.6], fov: 38},
     ],
   },
   {
@@ -208,8 +208,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 23,
     sentenceTo: 24,
     cam: [
-      {at: 0, pos: [1.5, 1.4, 4.4], target: [0.4, 1.05, 0.3], fov: 38},
-      {at: 1, pos: [2.9, 1.6, 6.6], target: [0.3, 1.1, 0.3], fov: 42},
+      {at: 0, pos: [1.5, 1.4, 4.6], target: [0.6, 1.0, 0.3], fov: 38},
+      {at: 1, pos: [2.8, 1.6, 6.6], target: [0.5, 1.05, 0.3], fov: 42},
     ],
   },
 ];

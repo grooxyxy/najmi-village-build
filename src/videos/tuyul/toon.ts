@@ -157,27 +157,27 @@ export function drawKid(
   const crouch = p.crouch * 90;
   const leanPx = p.lean * 3.4;
 
-  const hipY = 706 - crouch - bob;
-  const shoulderY = hipY - 246;
+  const hipY = 690 - crouch - bob;
+  const shoulderY = hipY - 240;
   const headRY = 138;
-  const headCY = shoulderY - 132 - breathe - crouch * 0.12;
-  const headRX = 146;
+  const headCY = shoulderY - 156 - breathe - crouch * 0.12;
+  const headRX = 150;
   const headX = cx + leanPx * 0.7 + p.yaw * 14;
   const bodyX = cx + leanPx;
 
   // ---- legs (sticks, knee bend from the walk cycle)
   for (const side of [-1, 1] as const) {
-    const swing = walking ? Math.sin(phase + (side < 0 ? 0 : Math.PI)) * 34 : side * 2;
-    const knee = walking ? 16 + 30 * Math.max(0, Math.sin(phase + (side < 0 ? 1.4 : 1.4 + Math.PI))) : 8;
-    const hipX = bodyX + side * 52;
-    const [kx, ky] = stick(ctx, hipX, hipY, swing, 132, 23, col.shorts);
-    const lower = swing - knee;
-    const [ax, ay] = stick(ctx, kx, ky, lower, 168, 20, col.skin);
+    const swing = walking ? Math.sin(phase + (side < 0 ? 0 : Math.PI)) * 26 : side * 2;
+    const knee = walking ? 14 + 34 * Math.max(0, Math.sin(phase + (side < 0 ? 1.2 : 1.2 + Math.PI))) : 8;
+    const hipX = bodyX + side * 54;
+    const [kx, ky] = stick(ctx, hipX, hipY, swing + side * 3, 126, 24, col.shorts);
+    const lower = swing + side * 3 - knee;
+    const [ax, ay] = stick(ctx, kx, ky, lower, 147, 20, col.skin);
     // sneaker, kept chunky so the stick legs still read as a kid
     ctx.save();
-    ctx.translate(ax + side * 12, ay + 16);
-    ctx.rotate(rad(lower));
-    rect(ctx, -34, -20, 74, 42, 18);
+    ctx.translate(ax + side * 12, ay + 14);
+    ctx.rotate(rad(lower * 0.45));
+    rect(ctx, -34, -18, 74, 40, 18);
     ctx.fillStyle = '#201a2a';
     ctx.fill();
     ctx.lineWidth = 6;
@@ -193,10 +193,10 @@ export function drawKid(
   }
 
   // ---- shorts
-  ink(ctx, () => rect(ctx, bodyX - 78, hipY - 24, 156, 84, 22), col.shorts, 6);
+  ink(ctx, () => rect(ctx, bodyX - 84, hipY - 24, 168, 84, 22), col.shorts, 6);
 
   // ---- torso: big bean
-  const tw = 132;
+  const tw = 140;
   ink(
     ctx,
     () => {
@@ -221,9 +221,9 @@ export function drawKid(
   for (const side of [-1, 1] as const) {
     const base = side < 0 ? p.armL : p.armR;
     const elbow = side < 0 ? p.elbowL : p.elbowR;
-    const sx = bodyX + side * (tw - 22);
-    const sy = shoulderY + 34;
-    const lift = -base * side * p.face;
+    const sx = bodyX + side * (tw - 18);
+    const sy = shoulderY + 32;
+    const lift = base * side * p.face;
     const [sx2, sy2] = stick(ctx, sx, sy, lift, 52, 38, col.shirt);
     const [ex, ey] = stick(ctx, sx2, sy2, lift, 74, 18, col.skin);
     const [hx, hy] = stick(ctx, ex, ey, lift + elbow * side * p.face, 96, 17, col.skin);
@@ -395,9 +395,9 @@ export function drawAdult(ctx: CanvasRenderingContext2D, t: number, wallet = 0, 
 
   // stick arms, coat sleeves near the shoulder
   for (const side of [-1, 1] as const) {
-    const sx = cx + side * 132;
-    ball(ctx, sx, shoulderY + 44, 34, coat, 6);
-    const [ex, ey] = stick(ctx, sx, shoulderY + 44, side * 6, 118, 20, coat);
+    const sx = cx + side * 116;
+    ball(ctx, sx, shoulderY + 44, 26, coat, 6);
+    const [ex, ey] = stick(ctx, sx, shoulderY + 44, side * 7, 118, 20, coat);
     const [hx, hy] = stick(ctx, ex, ey, side * 2, 112, 17, '#e6b184');
     ball(ctx, hx, hy, 17, '#e6b184', 5);
   }
@@ -405,17 +405,20 @@ export function drawAdult(ctx: CanvasRenderingContext2D, t: number, wallet = 0, 
   // scarf
   ink(ctx, () => rect(ctx, cx - 78, shoulderY - 18, 156, 44, 18), '#8a5a52', 6);
   // head, back view
-  ink(ctx, () => ctx.rect(cx - 30, headCY + 104, 60, 48), '#d9a374', 5);
-  ink(ctx, () => ctx.ellipse(cx, headCY, 130, 136, 0, 0, Math.PI * 2), '#343049', 7);
+  ink(ctx, () => ctx.rect(cx - 26, headCY + 96, 52, 52), '#c98f60', 5);
+  ink(ctx, () => ctx.ellipse(cx, headCY, 116, 122, 0, 0, Math.PI * 2), '#343049', 7);
+  for (const side of [-1, 1] as const) {
+    ink(ctx, () => ctx.ellipse(cx + side * 112, headCY + 18, 18, 26, 0, 0, Math.PI * 2), '#c98f60', 4);
+  }
   ink(
     ctx,
     () => {
-      ctx.moveTo(cx - 128, headCY + 8);
-      ctx.quadraticCurveTo(cx - 120, headCY - 148, cx, headCY - 150);
-      ctx.quadraticCurveTo(cx + 120, headCY - 148, cx + 128, headCY + 8);
-      ctx.lineTo(cx + 84, headCY - 52);
-      ctx.lineTo(cx, headCY - 78);
-      ctx.lineTo(cx - 84, headCY - 52);
+      ctx.moveTo(cx - 114, headCY + 22);
+      ctx.quadraticCurveTo(cx - 108, headCY - 132, cx, headCY - 134);
+      ctx.quadraticCurveTo(cx + 108, headCY - 132, cx + 114, headCY + 22);
+      ctx.lineTo(cx + 82, headCY - 40);
+      ctx.lineTo(cx, headCY - 62);
+      ctx.lineTo(cx - 82, headCY - 40);
       ctx.closePath();
     },
     '#1d1830',
@@ -442,8 +445,8 @@ export function drawAdult(ctx: CanvasRenderingContext2D, t: number, wallet = 0, 
 
 // -------------------------------------------------------------------- tuyul
 
-const TUYUL_SKIN = '#d4d6c3';
-const TUYUL_DK = '#a3a692';
+const TUYUL_SKIN = '#c9ceb9';
+const TUYUL_DK = '#979c86';
 
 function aura(ctx: CanvasRenderingContext2D, t: number, cx: number, cy: number, scale: number) {
   ctx.save();
@@ -608,6 +611,21 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
     ctx.stroke();
   }
 
+  // shoulder spikes
+  for (const side of [-1, 1] as const) {
+    ink(
+      ctx,
+      () => {
+        ctx.moveTo(cx + side * 78, 676);
+        ctx.lineTo(cx + side * 116, 610);
+        ctx.lineTo(cx + side * 108, 690);
+        ctx.closePath();
+      },
+      TUYUL_DK,
+      5,
+    );
+  }
+
   // arms: one reaching for the money, one long claw arm
   const reach = 118 + reaching * 40;
   const [exL, eyL] = stick(ctx, cx - 88, 700, -reach * 0.55, 130, 20, TUYUL_SKIN);
@@ -618,20 +636,21 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
       ctx,
       () => {
         ctx.moveTo(hxL, hyL);
-        ctx.quadraticCurveTo(hxL - 34 + i * 10, hyL + 26, hxL - 48 + i * 14, hyL + 62);
-        ctx.quadraticCurveTo(hxL - 20 + i * 10, hyL + 34, hxL + 6, hyL + 10);
+        ctx.quadraticCurveTo(hxL - 42 + i * 12, hyL + 34, hxL - 62 + i * 16, hyL + 92);
+        ctx.quadraticCurveTo(hxL - 22 + i * 12, hyL + 40, hxL + 6, hyL + 10);
         ctx.closePath();
       },
       TUYUL_DK,
       4,
     );
   }
-  const [exR, eyR] = stick(ctx, cx + 88, 700, 34, 128, 20, TUYUL_SKIN);
-  stick(ctx, exR, eyR, 76, 108, 17, TUYUL_SKIN);
-  // stolen money in the right hand
+  const [exR, eyR] = stick(ctx, cx + 92, 692, 18, 108, 20, TUYUL_SKIN);
+  const [hxR, hyR] = stick(ctx, exR, eyR, 205, 100, 17, TUYUL_SKIN);
+  ball(ctx, hxR, hyR, 16, TUYUL_SKIN, 5);
+  // stolen money clutched at chest height
   ctx.save();
-  ctx.translate(exR + 54, eyR + 74);
-  ctx.rotate(-0.2);
+  ctx.translate(hxR - 6, hyR - 26);
+  ctx.rotate(-0.22);
   ink(ctx, () => rect(ctx, -34, -24, 78, 56, 8), '#e7d3a0', 5);
   ink(ctx, () => rect(ctx, -24, -14, 58, 36, 4), '#f6e7bd', 3);
   ctx.beginPath();
@@ -642,7 +661,7 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
   ctx.restore();
 
   // big bald head
-  ink(ctx, () => ctx.ellipse(cx, headCY, 152, 156, 0, 0, Math.PI * 2), TUYUL_SKIN, 7);
+  ink(ctx, () => ctx.ellipse(cx, headCY, 158, 150, 0, 0, Math.PI * 2), TUYUL_SKIN, 7);
   // dome shine
   ctx.beginPath();
   ctx.ellipse(cx - 40, headCY - 86, 58, 34, -0.5, 0, Math.PI * 2);
@@ -677,30 +696,36 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
   }
 
   // black eyes, no whites
-  const eyeDx = 70;
+  const eyeDx = 72;
   for (const side of [-1, 1] as const) {
     const ex = cx + side * eyeDx + p.yaw * 16;
-    const ey = headCY + 8;
-    ink(ctx, () => ctx.ellipse(ex, ey, 50, 58, side * 0.08, 0, Math.PI * 2), '#0a0710', 5);
-    // wet rim
+    const ey = headCY + 10;
+    // sunken socket
     ctx.beginPath();
-    ctx.ellipse(ex, ey, 38, 46, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = '#3c2434';
-    ctx.lineWidth = 4;
+    ctx.ellipse(ex, ey + 6, 72, 72, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(92,104,82,0.5)';
+    ctx.fill();
+    ink(ctx, () => ctx.ellipse(ex, ey, 56, 52, 0, 0, Math.PI * 2), '#07050b', 5);
+    // angry upper lid cuts across the eye
+    ctx.beginPath();
+    ctx.moveTo(ex + side * 62, ey - 74);
+    ctx.lineTo(ex - side * 62, ey - 12);
+    ctx.lineTo(ex - side * 20, ey + 4);
+    ctx.lineTo(ex + side * 62, ey - 34);
+    ctx.closePath();
+    ctx.fillStyle = TUYUL_SKIN;
+    ctx.fill();
+    ctx.strokeStyle = '#3f4740';
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(ex + side * 62, ey - 74);
+    ctx.lineTo(ex - side * 62, ey - 12);
     ctx.stroke();
     // pin glint
     ctx.beginPath();
-    ctx.arc(ex - 12, ey - 16, 7, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,246,230,0.9)';
+    ctx.arc(ex - 14, ey + 14, 7, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,246,230,0.92)';
     ctx.fill();
-    // brow ridge
-    ctx.beginPath();
-    ctx.moveTo(ex - 48, ey - 58);
-    ctx.quadraticCurveTo(ex, ey - 74, ex + 48, ey - 54);
-    ctx.strokeStyle = '#7f8472';
-    ctx.lineWidth = 9;
-    ctx.lineCap = 'round';
-    ctx.stroke();
   }
 
   // nose slits
@@ -712,11 +737,11 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
   }
 
   // wide grin with sharp teeth
-  const mouthW = 84;
+  const mouthW = 100;
   ctx.beginPath();
-  ctx.moveTo(cx - mouthW, headCY + 96);
-  ctx.quadraticCurveTo(cx, headCY + 150, cx + mouthW, headCY + 92);
-  ctx.quadraticCurveTo(cx, headCY + 118, cx - mouthW, headCY + 96);
+  ctx.moveTo(cx - mouthW, headCY + 88);
+  ctx.quadraticCurveTo(cx, headCY + 172, cx + mouthW, headCY + 82);
+  ctx.quadraticCurveTo(cx, headCY + 120, cx - mouthW, headCY + 88);
   ctx.closePath();
   ctx.fillStyle = '#2a1118';
   ctx.fill();
@@ -725,19 +750,19 @@ export function drawTuyul(ctx: CanvasRenderingContext2D, t: number, p: Pose, rea
   ctx.stroke();
   // teeth
   ctx.fillStyle = '#f2ead3';
-  for (let i = 0; i < 7; i++) {
-    const x = cx - 62 + i * 21;
-    const y = headCY + 104 + Math.sin((i / 6) * Math.PI) * 10;
+  for (let i = 0; i < 9; i++) {
+    const x = cx - 78 + i * 19;
+    const y = headCY + 96 + Math.sin((i / 8) * Math.PI) * 18;
     ctx.beginPath();
     ctx.moveTo(x - 9, y);
-    ctx.lineTo(x, y + 20 + (i % 2) * 5);
+    ctx.lineTo(x, y + 22 + (i % 2) * 7);
     ctx.lineTo(x + 9, y);
     ctx.closePath();
     ctx.fill();
   }
   // tongue
   ctx.beginPath();
-  ctx.ellipse(cx, headCY + 134, 30, 12, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, headCY + 140, 38, 14, 0, 0, Math.PI * 2);
   ctx.fillStyle = '#8a3a44';
   ctx.fill();
 }
