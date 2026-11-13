@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition} from 'remotion';
 import {NajmiVideo} from './NajmiVideo';
 import {NajmiEp2} from './NajmiEp2';
+import {TuyulShort, TUYUL_DURATION} from './videos/tuyul/TuyulShort';
 import {DURATION_FRAMES, FPS} from './data/script';
 import {DURATION_FRAMES as EP2_DURATION_FRAMES, FPS as EP2_FPS} from './data/ep2/script';
 
@@ -22,6 +23,14 @@ export const RemotionRoot: React.FC = () => (
       fps={EP2_FPS}
       width={1920}
       height={1080}
+    />
+    <Composition
+      id="TuyulShort"
+      component={TuyulShort}
+      durationInFrames={TUYUL_DURATION}
+      fps={30}
+      width={1080}
+      height={1920}
     />
   </>
 );

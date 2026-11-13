@@ -1,0 +1,57 @@
+name: Render Tuyul short
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/videos/tuyul/**'
+      - 'public/audio/tuyul/**'
+      - 'src/Root.tsx'
+      - 'package.json'
+      - '.github/workflows/render-tuyul.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tuyul-render-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    name: Render 1080x1920 (h264)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      TMP: /home/runner/work/_temp/remotion
+      TEMP: /home/runner/work/_temp/remotion
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Prepare temp dirs
+        run: |
+          mkdir -p "$TMP"
+          ffmpeg -version | head -1
+
+      - name: Render
+        run: |
+          npx remotion render src/index.ts TuyulShort out/tuyul/tuyul-short.mp4 \
+            --codec=h264 --crf=18 --concurrency=2 --gl=swangle
+
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: tuyul-short
+          path: out/tuyul/tuyul-short.mp4
+          retention-days: 14

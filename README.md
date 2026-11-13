@@ -36,6 +36,16 @@ Video cerita isekai/komedi berdurasi total **406 detik**, 1920×1080, 30 fps. Du
 | 01:50–02:35 | System | Panel System muncul: Host terpilih, misi utama tidak bisa dibatalkan. |
 | 02:35–03:36 | Build & ending | Status wilayah kosong, kotej pertama dibangun dengan sihir, desa dimulai, title card. |
 
+
+## Tuyul short (cartoon 3D)
+
+`TuyulShort` — 1080×1920, 30 fps, 165,6 detik, narasi asli `public/audio/tuyul/tuyul-narration.wav`.
+
+- Dunia: halaman sekolah rendah saat senja (gapura, bangunan, pohon, lampu) + interior kelas, semuanya low-poly Three.js.
+- Karakter: kartu 2D yang digambar ulang tiap frame (`src/videos/tuyul/toon.ts`) — bean head, tinta plum, napas, blink, walk cycle, follow-through.
+- Rencana shot + timing narasi: `src/videos/tuyul/story.ts` (blok 1 mulai 0,570 s; blok 2 mulai 104,910 s).
+- Render: workflow **Render Tuyul short** (`.github/workflows/render-tuyul.yml`), artifact `tuyul-short`.
+
 ## Menjalankan lewat GitHub Actions
 
 Workflow Episode 01 ada di `.github/workflows/render.yml`; workflow Episode 02 ada di `.github/workflows/render-ep2.yml`. Keduanya bisa dipicu manual (`workflow_dispatch`) atau otomatis saat push ke `main` yang menyentuh file terkait.
