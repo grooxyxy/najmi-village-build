@@ -2,6 +2,8 @@ name: Tuyul stills
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: [tuyul-stills]
 
 permissions:
   contents: read
