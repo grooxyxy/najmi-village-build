@@ -135,9 +135,9 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 8,
     sentenceTo: 9,
     cam: [
-      {at: 0, pos: [1.4, 1.35, 3.4], target: [1.15, 1.05, -1.0], fov: 38},
-      {at: 0.45, pos: [0.8, 1.6, 4.6], target: [1.2, 1.1, -2.0], fov: 42},
-      {at: 1, pos: [0.2, 1.75, 5.6], target: [1.2, 1.15, -2.8], fov: 44},
+      {at: 0, pos: [1.4, 1.35, 3.4], target: [1.2, 1.05, -0.8], fov: 38},
+      {at: 0.45, pos: [1.1, 1.55, 4.2], target: [1.5, 1.1, -1.9], fov: 42},
+      {at: 1, pos: [0.7, 1.7, 4.6], target: [1.7, 1.15, -2.5], fov: 44},
     ],
   },
   {

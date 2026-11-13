@@ -226,10 +226,15 @@ export function drawKid(
     const sx = bodyX + side * (tw - 18);
     const sy = shoulderY + 32;
     const lift = base * side * p.face;
-    stick(ctx, sx, sy, lift, 42, 40, col.shirt);
     const [ex, ey] = stick(ctx, sx, sy, lift, 122, 18, col.skin);
     const [hx, hy] = stick(ctx, ex, ey, lift - elbow * side * 0.55, 100, 17, col.skin);
     ball(ctx, hx, hy, 17, col.skin, 5);
+    // puff sleeve drawn last so it covers the shoulder joint cleanly
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(rad(lift));
+    ink(ctx, () => ctx.ellipse(0, 8, 25, 30, 0, 0, Math.PI * 2), col.shirt, 5);
+    ctx.restore();
   }
 
   // ---- neck

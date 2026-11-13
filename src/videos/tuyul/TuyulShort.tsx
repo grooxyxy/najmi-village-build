@@ -370,7 +370,7 @@ export const TuyulShort: React.FC = () => {
               })}
             />
             <ToonActor
-              position={[0.1, 0.72, -5.35]}
+              position={[-0.95, 0.72, -5.35]}
               height={2.0}
               shadow={false}
               draw={(ctx, time) => drawSilhouette(ctx, time)}
