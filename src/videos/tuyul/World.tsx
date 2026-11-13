@@ -113,7 +113,7 @@ const School: React.FC = () => {
             position={[0, 3.55, 0]}
             color="#ffe3b0"
             emissive="#ffbd72"
-            emissiveIntensity={1.35}
+            emissiveIntensity={0.95}
           />
           <Box size={[3.15, 0.16, 0.22]} position={[0, 4.66, 0.03]} color="#6a4557" />
           <Box size={[3.15, 0.16, 0.22]} position={[0, 2.44, 0.03]} color="#6a4557" />
@@ -126,7 +126,7 @@ const School: React.FC = () => {
 
       {/* glowing doorway */}
       <group position={[0, 0, 4.05]}>
-        <Box size={[3.5, 4.3, 0.16]} position={[0, 2.15, -0.06]} color="#ffd9a2" emissive="#ffa75e" emissiveIntensity={1.25} />
+        <Box size={[3.5, 4.3, 0.16]} position={[0, 2.15, -0.06]} color="#ffd9a2" emissive="#ffa75e" emissiveIntensity={1.0} />
         <Box size={[0.24, 4.3, 0.3]} position={[-1.75, 2.15, 0.06]} color="#543956" />
         <Box size={[0.24, 4.3, 0.3]} position={[1.75, 2.15, 0.06]} color="#543956" />
         <Box size={[3.9, 0.28, 0.42]} position={[0, 4.4, 0.1]} color="#543956" />
@@ -141,7 +141,7 @@ const School: React.FC = () => {
         position={[0, 6.2, 4.16]}
         color="#ffe7bd"
         emissive="#ffc27a"
-        emissiveIntensity={0.75}
+        emissiveIntensity={0.55}
       />
 
       {/* steps */}
@@ -316,8 +316,8 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       <Box size={[0.2, 0.12, 5.0]} position={[-5.9, 0.86, -1.4]} color="#8a6038" />
 
       {/* desks: two rows, three columns, aisle in the middle */}
-      {[-3.7, 3.7].map((x) =>
-        [-2.6, -4.0].map((z) => <Desk key={`${x}-${z}`} position={[x, 0, z]} rotation={x === 0 ? 0.02 : -0.03} />),
+      {[-1.85, 1.85].map((x) =>
+        [-2.7, -4.05].map((z) => <Desk key={`${x}-${z}`} position={[x, 0, z]} rotation={x < 0 ? 0.03 : -0.03} />),
       )}
       {/* teacher desk off to the left, clear of the camera line */}
       <Desk position={[-4.6, 0, 1.6]} rotation={0.6} color="#7a5532" />
@@ -337,7 +337,7 @@ const Classroom: React.FC<{t: number}> = ({t}) => {
       </group>
 
       {/* ceiling lamp */}
-      <group position={[0, 3.4, -0.3]}>
+      <group position={[0, 3.4, -2.3]}>
         <Cylinder radiusTop={0.02} radiusBottom={0.02} height={0.45} segments={4} position={[0, -0.22, 0]} color="#2c2033" />
         <Cylinder radiusTop={0.4} radiusBottom={0.58} height={0.3} segments={10} position={[0, -0.52, 0]} color="#3a2a40" />
         <GlowSprite map={glow} scale={2.2} position={[0, -0.66, 0]} color="#ffcf94" opacity={0.28} />

@@ -94,9 +94,9 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 0,
     sentenceTo: 2,
     cam: [
-      {at: 0, pos: [0.6, 2.7, 13.0], target: [0.0, 1.5, -4], fov: 42},
-      {at: 0.55, pos: [0.3, 2.2, 9.2], target: [0.1, 1.4, -3], fov: 40},
-      {at: 1, pos: [0.0, 1.75, 6.6], target: [0.2, 1.25, -2], fov: 38},
+      {at: 0, pos: [1.2, 3.3, 16.0], target: [0.2, 2.7, -10], fov: 46},
+      {at: 0.55, pos: [0.8, 2.5, 10.4], target: [0.2, 1.9, -6], fov: 44},
+      {at: 1, pos: [0.4, 1.95, 7.0], target: [0.2, 1.4, -2], fov: 40},
     ],
   },
   {
@@ -198,7 +198,7 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 21,
     sentenceTo: 22,
     cam: [
-      {at: 0, pos: [1.0, 1.55, 4.8], target: [0.1, 1.45, -3.0], fov: 40},
+      {at: 0, pos: [1.0, 1.55, 4.8], target: [0.0, 1.45, -3.0], fov: 40},
       {at: 1, pos: [0.75, 1.55, 4.2], target: [0.1, 1.45, -3.6], fov: 38},
     ],
   },
