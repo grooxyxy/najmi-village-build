@@ -1,5 +1,7 @@
 import {CLOUDS, loopT, rnd} from './scene';
 
+export {loopT};
+
 // --- tiny easing / motion helpers (shared by all 5 styles) ---
 export const clamp = (v: number, a = 0, b = 1) => (v < a ? a : v > b ? b : v);
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
