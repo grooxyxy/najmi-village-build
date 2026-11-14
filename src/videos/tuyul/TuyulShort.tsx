@@ -311,8 +311,8 @@ export const TuyulShort: React.FC = () => {
               }
             />
             <Kid
-              x={1.25}
-              z={0.9}
+              x={0.9}
+              z={0.7}
               pose={kidPose(t, {
                 lean: -4,
                 yaw: 0.35,
@@ -358,7 +358,7 @@ export const TuyulShort: React.FC = () => {
               draw={(ctx, time) => drawTuyul(ctx, time, restPose({crouch: 0.28, yaw: 0.1 + turn * 0.85}), 0.7)}
             />
             <Kid
-              x={0.55}
+              x={0.7}
               z={0.9}
               pose={kidPose(t, {
                 lean: 1,

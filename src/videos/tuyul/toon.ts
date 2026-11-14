@@ -432,9 +432,20 @@ export function drawAdult(ctx: CanvasRenderingContext2D, t: number, wallet = 0, 
     5,
   );
 
-  // shoulder bag + wallet hand
+  // shoulder bag + strap from the right shoulder to the left hip
+  ink(
+    ctx,
+    () => {
+      ctx.moveTo(cx + 78, shoulderY + 2);
+      ctx.lineTo(cx + 100, shoulderY + 26);
+      ctx.lineTo(cx - 144, hipY - 66);
+      ctx.lineTo(cx - 164, hipY - 90);
+      ctx.closePath();
+    },
+    '#2b2639',
+    4,
+  );
   ink(ctx, () => rect(ctx, cx - 218, hipY - 96, 104, 140, 26), '#211a2c', 6);
-  ink(ctx, () => rect(ctx, cx - 60, shoulderY + 20, 16, 300, 8), '#2b2639', 4);
   ink(ctx, () => rect(ctx, cx + 62, hipY - 38, 86, 54, 10), '#6b4430', 6);
   for (let i = 0; i < 3; i++) {
     const lift = wallet * (10 + i * 7);
