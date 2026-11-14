@@ -105,8 +105,8 @@ export const SHOTS: Shot[] = [
     sentenceFrom: 3,
     sentenceTo: 4,
     cam: [
-      {at: 0, pos: [1.6, 1.58, 5.0], target: [0.0, 1.05, -1.8], fov: 44},
-      {at: 1, pos: [1.1, 1.5, 4.4], target: [0.05, 1.0, -1.9], fov: 42},
+      {at: 0, pos: [1.35, 1.48, 3.9], target: [0.0, 1.05, -1.8], fov: 44},
+      {at: 1, pos: [0.9, 1.42, 3.3], target: [0.05, 1.0, -1.9], fov: 42},
     ],
   },
   {

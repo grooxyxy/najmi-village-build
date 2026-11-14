@@ -254,6 +254,7 @@ export const TuyulShort: React.FC = () => {
                 lean: 8,
                 yaw: Math.sin(t * 0.55) * 0.55,
                 lookX: Math.sin(t * 0.7) * 0.85,
+                wow: 0.2,
                 blink: blinkAt(t, 0.8),
               })}
             />
@@ -288,6 +289,7 @@ export const TuyulShort: React.FC = () => {
                 yaw: 0.3,
                 lookX: 0.85,
                 lookY: 0.05,
+                wow: 0.32,
                 blink: blinkAt(t, 0.9),
               })}
             />
@@ -396,6 +398,7 @@ export const TuyulShort: React.FC = () => {
                 yaw: 0.55,
                 lookX: 0.35,
                 lookY: -0.1,
+                wow: 0.16,
                 blink: blinkAt(t, 1.3),
               })}
             />
