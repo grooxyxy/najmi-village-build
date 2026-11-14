@@ -1,0 +1,54 @@
+name: Preview Stills
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Render stills (6 compositions)
+        run: |
+          mkdir -p preview
+          for id in PreviewGrid Style1-Pixel Style2-3D Style3-Stickman Style4-Watercolor Style5-FlatAnime; do
+            echo "::group::$id"
+            npx remotion still src/index.ts "$id" "preview/$id.png" --frame=60 --log=error
+            echo "::endgroup::"
+          done
+          ls -la preview
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-stills
+          path: preview/*.png
+          if-no-files-found: error
+
+      - name: Commit preview PNGs back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview
+          if git diff --cached --quiet; then
+            echo "No preview changes"
+          else
+            git commit -m "chore: update preview stills [skip ci]"
+            git push
+          fi

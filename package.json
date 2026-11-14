@@ -1,36 +1,22 @@
 {
-  "name": "najmi-the-village-builder",
+  "name": "isekai-village-style-previews",
   "version": "1.0.0",
   "private": true,
-  "description": "NAJMI — THE VILLAGE BUILDER, Episodes 01–02. Remotion + Three.js MOBA-cam pixel-art story video.",
+  "description": "5 style previews of one isekai village scene (Remotion) — pixel, 3D, stickman hybrid, watercolor, flat anime",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts NajmiEp1 out/najmi-ep1.mp4 --gl=swangle",
-    "still": "remotion still src/index.ts NajmiEp1 out/still.png --frame=0 --gl=swangle",
-    "render:ep2": "remotion render src/index.ts NajmiEp2 out/najmi-ep2.mp4 --gl=swangle",
-    "still:ep2": "remotion still src/index.ts NajmiEp2 out/still-ep2.png --frame=0 --gl=swangle",
-    "tts:ep2": "node scripts/generate-tts-ep2.mjs",
-    "audio:ep2": "node scripts/generate-audio-ep2.mjs",
-    "typecheck": "tsc --noEmit",
-    "assets": "python3 scripts/generate-sprites.py && node scripts/generate-audio.mjs && node scripts/generate-tts.mjs",
-    "assets:ep2": "python3 scripts/generate-sprites.py && node scripts/generate-audio-ep2.mjs && node scripts/generate-tts-ep2.mjs"
+    "still": "remotion still src/index.ts",
+    "render": "remotion render src/index.ts"
   },
   "dependencies": {
-    "@react-three/fiber": "9.8.2",
     "@remotion/cli": "4.0.543",
-    "@remotion/three": "4.0.543",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "remotion": "4.0.543",
-    "three": "0.181.2"
+    "remotion": "4.0.543"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "@types/three": "^0.181.0",
     "typescript": "^5.9.0"
-  },
-  "engines": {
-    "node": ">=20"
   }
 }

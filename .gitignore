@@ -1,12 +1,5 @@
 node_modules/
 out/
-.cache/
 .remotion/
 *.log
 .DS_Store
-
-__pycache__/
-*.pyc
-
-# Earlier exploratory previews (not part of the final render)
-previews/
